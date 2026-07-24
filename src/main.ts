@@ -1,6 +1,9 @@
 import {DatetimeWithMemory} from "./datememory.js";
-import {DateUtils, ElementUtils, URLUtils} from "./util.js"
+import {DateUtils, ElementUtils, NetworkUtils} from "./util.js"
 import {type VersionList, VersionListMethods, versionListSchema} from "./lists.js";
+
+const customUrls: string[] = []
+let customFileUploadsCount: number = 0;
 
 const datetimeWithMemory = new DatetimeWithMemory(
 	"#datetime-form",
@@ -57,6 +60,27 @@ function blankOutputs(message: string = "") {
 
 	const listLastUpdatedBox = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-last-updated");
 	listLastUpdatedBox.innerText = "";
+}
+
+function updateCustomLists(): boolean {
+	const listForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form");
+	const customOptionsGroup = ElementUtils.getElementOrThrow("#custom-lists");
+
+	// Save current list selection
+	const currentListValue = listForm.value;
+
+	// Blank
+	customOptionsGroup.innerHTML = "";
+	// Add Custom URLs
+	for (let i = 0; i < customUrls.length; ++i) customOptionsGroup.innerHTML += `<option>Custom URL #${i + 1}</option>`;
+	// Add Custom Files
+	for (let i = 0; i < customFileUploadsCount; ++i) customOptionsGroup.innerHTML += `<option>Custom File #${i + 1}</option>`;
+	// Add URL/File upload options
+	customOptionsGroup.innerHTML += `<option>From URL</option><option>From File Upload</option>`;
+
+	// Restore current list selection
+	listForm.value = currentListValue;
+	return true;
 }
 
 async function updatePageForList(): Promise<void> {
@@ -151,42 +175,74 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Version
 	
 	let url = "";
 	switch (listForm.value) {
+		// Preset lists
 		case "Java Edition":
-			// TODO: Find way to replace with permalink
-			url = "https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/Minecraft%20Java%20Edition%20Versions.json";
+			// TODO: Replace with permalink?
+			url = "https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/Minecraft Java Edition Versions.json";
 			break;
 		case "Xbox 360 Edition":
-			url = "https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/Minecraft%20Xbox%20360%20Versions.json";
+			url = "https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/Minecraft Xbox 360 Versions.json";
 			break;
+		// Uploading new URL: extract URL from form
 		case "From URL":
 			const listURLForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-url");
 			if (!listURLForm.value || !listURLForm.validity) return null;
 			url = listURLForm.value;
 			break;
+		// Uploading new file: hash key is "Custom File #1", etc.
+		// (file extraction) occurs in NetworkUtils.queryUploadedFile()
 		case "From File Upload":
-			// Handled in URLUtils.queryUploadedFile
+			url = `Custom File #${customFileUploadsCount + 1}`;
 			break;
 		default:
+			// See if the specified list is a stored custom URL/file.
+			// Both follow the naming convention "Custom [URL/File] #1", etc., so if it is,
+			// the text after the last "#" should be the entry's index + 1.
+			let index: number;
+			try {
+				index = Number(listForm.value.split("#").at(-1)) - 1;
+			} catch {
+				// If it's not a number, we've run out of possibilities and it's an invalid list
+				return null;
+			}
+			if (index < 0) return null;
+			// Corresponding URLs for stored custom URLs are stored in customUrls
+			if (listForm.value.startsWith("Custom URL #") && index < customUrls.length) {
+				url = customUrls[index];
+				break;
+			}
+			// Corresponding hash keys for stored custom files are simply "Custom File #1", etc. itself
+			if (listForm.value.startsWith("Custom File #") && index < customFileUploadsCount) {
+				url = listForm.value;
+				break;
+			}
+			// Otherwise it's not a valid stored URL/file
 			return null;
 	}
 
+	// New file uploads are handled in queryUploadedFile
 	const fetchResponse = (listForm.value == "From File Upload") ?
-		await URLUtils.queryUploadedFile(listFileUploadForm.files, "chronological-calculator-list-cache") :
-		await URLUtils.queryURL(url, "chronological-calculator-list-cache");
+		await NetworkUtils.queryUploadedFile(listFileUploadForm.files, "chronological-calculator-list-cache", url) :
+		// Everything else can be handled in queryURL. (Stored custom files should still result
+		// in a cache hit, and if they don't, the function will return null anyways.)
+		await NetworkUtils.queryURL(url, "chronological-calculator-list-cache", getLastModifed);
 	if (!fetchResponse || !fetchResponse.ok) return null;
 
-	// Otherwise parse list and return
-	const responseJSON: JSON = await fetchResponse.json();
-	if (getLastModifed) {
-		if (fetchResponse.headers.has("Last-Modified")) {
-			Object.assign(responseJSON, {lastModified: fetchResponse.headers.get("Last-Modified")});
-		} else try {
-			const urlObject = new URL(url);
-			Object.assign(responseJSON, {lastModified: await URLUtils.getGithubLastCommit(urlObject)});
-		} catch {
-			;
-		}
+	// Store custom URL, if applicable
+	if (listForm.value == "From URL" && !customUrls.includes(url)) {
+		customUrls.push(url);
+		updateCustomLists();
 	}
+	// Indicate another custom file was uploaded, if applicable
+	else if (listForm.value == "From File Upload" && !customUrls.includes(url)) {
+		++customFileUploadsCount;
+		updateCustomLists();
+	}
+	// Extract list data, and add last modified date if present
+	const responseJSON: JSON = await fetchResponse.json();
+	Object.assign(responseJSON, {lastModified: fetchResponse.headers.get("Last-Modified")});
+	// Parse list and return
+	// TODO: Can we cache the parsed JSON lists instead of the original requests?
 	return versionListSchema.parse(responseJSON);
 }
 

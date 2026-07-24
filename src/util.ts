@@ -74,17 +74,18 @@ export class ElementUtils {
 	}
 }
 
-export class URLUtils {
-	static async queryURL(url: string, cacheName: string | null = null): Promise<Response | null> {
+export class NetworkUtils {
+	static async queryURL(url: string, cacheName: string | null = null, tryToGetLastModified: boolean = true): Promise<Response | null> {
 		let fetchResponse: Response | undefined = undefined;
 
-		// Check cache for URL
+		// Check cache for URL, if applicable; return if found
 		if (cacheName) {
 			const cache = await caches.open(cacheName);
 			fetchResponse = await cache.match(url);
 			if (fetchResponse) return fetchResponse;
 		}
 
+		// Try requesting URL. Return null if an error occurs or the response isn't OK
 		try {
 			fetchResponse = await fetch(url);
 		} catch {
@@ -92,6 +93,23 @@ export class URLUtils {
 		}
 		if (!fetchResponse.ok) return null;
 
+		// If we should try to get the last modified date, and it isn't already a header:
+		const previousLastModified = fetchResponse.headers.get("Last-Modified");
+		if (tryToGetLastModified && (
+			!previousLastModified || !DateUtils.isValid(new Date(previousLastModified))
+		)) {
+			// Check if it's from GitHub
+			// TODO: Expand to GitLab? Other sites? More generally?
+			const lastCommitDatetime = await NetworkUtils.getGithubLastCommit(url);
+			// Headers are immutable, so we need to construct a brand-new Response object
+			if (lastCommitDatetime) fetchResponse = new Response(fetchResponse.body, {
+				headers: {"Last-Modified": lastCommitDatetime},
+				status: fetchResponse.status,
+				statusText: fetchResponse.statusText
+			})
+		}
+
+		// Store in cache, if applicable, and return
 		if (cacheName) {
 			const cache = await caches.open(cacheName);
 			await cache.put(url, fetchResponse.clone());
@@ -99,20 +117,28 @@ export class URLUtils {
 		return fetchResponse;
 	}
 
-	static async queryUploadedFile(fileList: FileList | null, cacheName: string | null = null): Promise<Response | null> {
-		if (!fileList) return null;
+	static async queryUploadedFile(fileList: FileList | null, cacheName: string | null = null, fileHash: string | null = null): Promise<Response | null> {
+		// Not providing a filelist only works if a cachename + file hash were provided, and a cache hit occurs
+		if (!fileList || !fileList.length) {
+			if (cacheName && fileHash) {
+				const cache = await caches.open(cacheName);
+				const fetchResponse = await cache.match(fileHash);
+				if (fetchResponse) return fetchResponse;
+			}
+			// Otherwise we can't retrieve any files from the filelist, so return null
+			return null;
+		}
+
 		const file = fileList[0];
 
-		// Check cache for URL
-		const fileHash = `${file.name}-${file.lastModified}-${file.size}`;
-
-		// Check cache for URL
-		if (cacheName) {
+		// Check cache for URL, if applicable; return if found
+		if (cacheName && fileHash) {
 			const cache = await caches.open(cacheName);
 			const fetchResponse = await cache.match(fileHash);
 			if (fetchResponse) return fetchResponse;
 		}
 
+		// Get last modified date, and roll new Response with file text + date header
 		const lastModifiedDatetime = new Date(file.lastModified);
 		const fetchResponse = new Response(
 			await file.text(),
@@ -122,15 +148,26 @@ export class URLUtils {
 		);
 		if (!fetchResponse.ok) return null;
 
-		if (cacheName) {
+		// Store in cache, if applicable, and return
+		if (cacheName && fileHash) {
 			const cache = await caches.open(cacheName);
 			await cache.put(fileHash, fetchResponse.clone());
 		}
 		return fetchResponse;
 	}
 
-	static async getGithubLastCommit(url: URL): Promise<string | null> {
+	static async getGithubLastCommit(url: string | URL | null): Promise<string | null> {
+		// Nulls return null
 		if (!url) return null;
+		// Strings get converted to URLs, or return null if impossible
+		if (!(url instanceof URL)) {
+			try {
+				url = new URL(url);
+			} catch {
+				return null;
+			}
+		}
+		// if (!url) return null;
 		const whitelistedProtocols = new Set(["http:", "https:"]);
 		if (!whitelistedProtocols.has(url.protocol)) return null;
 		const whitelistedDomains = new Set(["github.com", "www.github.com", "raw.githubusercontent.com"]);
@@ -150,6 +187,7 @@ export class URLUtils {
 		const shaOrBranch = filepathParameters[3 + extraParameters];
 		const path = filepathParameters.slice(4 + extraParameters).join("/");
 
+		// Make an API request, returning null upon failure
 		let response: Response;
 		try {
 			response = await fetch(`https://api.github.com/repos/${owner}/${repository}/commits?sha=${shaOrBranch}&path=${path}&per_page=1&page=1`)
@@ -158,12 +196,14 @@ export class URLUtils {
 		}
 		if (!response || !response.ok) return null;
 
+		// Extract JSON, returning null upon failure
 		let responseJSON: any;
 		try {
 			responseJSON = await response.json();
 		} catch {
 			return null;
 		}
+		// Follow the path that the API *should* provide, or return null if failed
 		return responseJSON[0]?.commit?.committer?.date ?? null;
 	}
 }
