@@ -2,7 +2,9 @@ export class DateUtils {
 	static getUTCDatetime(element: HTMLInputElement): Date | null {
 		// Element.valueAsDate does not work because it is often set to null
 		// even when Element.value is already a valid date.
-		const datetime = new Date(element.value + "Z");
+		const datetime = new Date(
+			element.value.endsWith("Z") ? element.value : element.value + "Z"
+		);
 		return DateUtils.isValid(datetime) ? datetime : null;
 	}
 	static extractDate(date: Date): string {

@@ -9,15 +9,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Chronology Calculator</title>
 	<meta property="og:title" content="Chronology Calculator">
-	<meta property="og:description" content="Finds the latest Minecraft release and snapshot on a particular date.">
+	<meta property="og:description" content="Given a list of timestamped entries, finds the latest entries matching some metadata as of a particular date.">
 </head>
 
 <body>
 
 	<noscript>
 		<div>
-			<p>This page requires JavaScript to function.</p>
-			<p>As an alternative, you can browse Omniarchive's indices for Java Edition (<a href="https://docs.google.com/spreadsheets/d/1OCxMNQLeZJi4BlKKwHx2OlzktKiLEwFXnmCrSdAFwYQ">1</a> and <a href="https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g">2</a>), as well as the Minecraft Wiki's articles regarding the <a href="https://minecraft.wiki/w/Java_Edition_version_history">Java Edition version history</a>, <a href="https://minecraft.wiki/w/Bedrock_Edition_version_history">Bedrock Edition version history</a>, etc.</p>
+			<p>This page is dynamic, and therefore unfortunately requires JavaScript to function.</p>
 		</div>
 	</noscript>
 
@@ -39,7 +38,7 @@
 						<option>From File Upload</option>
 					</optgroup>
 				</select>
-				<input type="url" id="list-form-url" placeholder="URL..." pattern="^https?://.*" class="hidden">
+				<input type="url" id="list-form-url" placeholder="URL..." class="hidden">
 				<!-- TODO: Figure out how to center -->
 				<input type="file" id="list-form-file-upload" accept=".json,.JSON" class="hidden">
 			</li>

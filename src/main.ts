@@ -1,6 +1,6 @@
 import {DatetimeWithMemory} from "./datememory.js";
 import {DateUtils, ElementUtils, NetworkUtils} from "./util.js"
-import {type VersionList, VersionListMethods, versionListSchema} from "./lists.js";
+import {type TimeseriesList, TimeseriesListMethods, timeseriesListSchema} from "./lists.js";
 
 const customUrls: string[] = []
 let customFileUploadsCount: number = 0;
@@ -106,8 +106,8 @@ function updateRangeOutput(): boolean {
 	return true;
 }
 
-// Update the datetime resolution to match the current version list.
-function updateDatetimeResolution(list: VersionList): boolean {
+// Update the datetime resolution to match the current list.
+function updateDatetimeResolution(list: TimeseriesList): boolean {
 	if (list && list.highResolution) {
 		datetimeWithMemory.toHighResolution();
 		return true;
@@ -125,6 +125,7 @@ function updateURLVisibility(): boolean {
 		return true;
 	}
 	listURLForm.classList.add("hidden");
+	listURLForm.value = "";
 	return false;
 }
 
@@ -140,7 +141,7 @@ function updateFileUploadVisibility(): boolean {
 	return false;
 }
 
-function updateOutputBoxes(list: VersionList): boolean {
+function updateOutputBoxes(list: TimeseriesList): boolean {
 	if (!list) return false;
 	const outputContainer = ElementUtils.getElementOrThrow<HTMLInputElement>("#output-container");
 
@@ -157,7 +158,7 @@ function updateOutputBoxes(list: VersionList): boolean {
 	return true;
 }
 
-function updateListLastUpdateField(list: VersionList): boolean {
+function updateListLastUpdateField(list: TimeseriesList): boolean {
 	if (!list) return false;
 	const listLastUpdatedBox = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-last-updated");
 
@@ -169,7 +170,7 @@ function updateListLastUpdateField(list: VersionList): boolean {
 	return true;
 }
 
-async function getListFromForm(getLastModifed: boolean = false): Promise<VersionList | null> {
+async function getListFromForm(getLastModifed: boolean = false): Promise<TimeseriesList | null> {
 	const listForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form");
 	const listFileUploadForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-file-upload");
 	
@@ -186,8 +187,8 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Version
 		// Uploading new URL: extract URL from form
 		case "From URL":
 			const listURLForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-url");
-			if (!listURLForm.value || !listURLForm.validity) return null;
-			url = listURLForm.value;
+			if (!listURLForm.value) return null;
+			url = `${!listURLForm.value.match(/^https?:\/\//) ? "https://" : ""}${listURLForm.value}`;
 			break;
 		// Uploading new file: hash key is "Custom File #1", etc.
 		// (file extraction) occurs in NetworkUtils.queryUploadedFile()
@@ -239,23 +240,27 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Version
 		updateCustomLists();
 	}
 	// Extract list data, and add last modified date if present
-	const responseJSON: JSON = await fetchResponse.json();
-	Object.assign(responseJSON, {lastModified: fetchResponse.headers.get("Last-Modified")});
-	// Parse list and return
-	// TODO: Can we cache the parsed JSON lists instead of the original requests?
-	return versionListSchema.parse(responseJSON);
+	try {
+		const responseJSON: JSON = await fetchResponse.json();
+		Object.assign(responseJSON, {lastModified: fetchResponse.headers.get("Last-Modified")});
+		// Parse list and return
+		// TODO: Can we cache the parsed JSON lists instead of the original requests?
+		return timeseriesListSchema.parse(responseJSON);
+	} catch {
+		return null;
+	}
 }
 
-async function recalculate(list: VersionList | null = null): Promise<void> {
-	list = await ElementUtils.asyncGetIfNullOrNull<VersionList>(list, getListFromForm, false);
+async function recalculate(list: TimeseriesList | null = null): Promise<void> {
+	list = await ElementUtils.asyncGetIfNullOrNull<TimeseriesList>(list, getListFromForm, false);
 	if (!list) {
 		blankOutputs(`[Invalid list]`);
 		return;
 	}
 	const datetime = datetimeWithMemory.read();
 	
-	const latestEntryIndex = VersionListMethods.getLatestEntryIndexOn(list, datetime);
-	const latestEntriesList = VersionListMethods.getFirstEntriesWithMetadata(list, latestEntryIndex);
+	const latestEntryIndex = TimeseriesListMethods.getLatestEntryIndexOn(list, datetime);
+	const latestEntriesList = TimeseriesListMethods.getFirstEntriesWithMetadata(list, latestEntryIndex);
 
 	for (let i = 0; i < list.metadata.length + 1; ++i) {
 		const outputBoxName = ElementUtils.getElementOrThrow(`#output-name-${i}`);
@@ -279,9 +284,9 @@ async function recalculate(list: VersionList | null = null): Promise<void> {
 			continue;
 		}
 
-		outputBoxName.innerHTML = VersionListMethods.printLinkable(currentLatestEntry);
+		outputBoxName.innerHTML = TimeseriesListMethods.printLinkable(currentLatestEntry);
 		for (let j = 0; j < currentLatestEntry.sources.length; ++j) {
-			outputBoxName.innerHTML += `<sup>${VersionListMethods.printLinkable({
+			outputBoxName.innerHTML += `<sup>${TimeseriesListMethods.printLinkable({
 				name: `[${j + 1}]`,
 				url: currentLatestEntry.sources[j]
 			})}</sup>`;

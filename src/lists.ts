@@ -47,7 +47,7 @@ const entrySchema = z.catchall(
 );
 type Entry = z.infer<typeof entrySchema>;
 
-export const versionListSchema = z.pipe(
+export const timeseriesListSchema = z.pipe(
 	// Attributes pulled from JSON
 	z.object({
 		entries: z.pipe(
@@ -70,11 +70,11 @@ export const versionListSchema = z.pipe(
 	// Derived attributes
 	z.transform((data) => ({
 		...data,
-		// Whether version list contains timestamp data (versus only dates)
+		// Whether list contains timestamp data (versus only dates)
 		highResolution: data.entries.some(
 			(entry) => DateUtils.extractTime(entry.timestamp) != "00:00:00"
 		),
-		// List of metadata keys contained in version list's entries
+		// List of metadata keys contained in list's entries
 		metadata: [...new Set(data.entries.flatMap(
 			// For each entry, get keys in the entry that aren't in the entry schema
 			(entry) => Object.keys(entry).filter(
@@ -84,16 +84,16 @@ export const versionListSchema = z.pipe(
 		))]
 	}))
 );
-export type VersionList = z.infer<typeof versionListSchema>;
+export type TimeseriesList = z.infer<typeof timeseriesListSchema>;
 
-export class VersionListMethods {
+export class TimeseriesListMethods {
 
 	static printLinkable<T extends Linkable>(linkable: T): string {
 		if (!linkable.url) return linkable.name;
 		return `<a href="${linkable.url}">${linkable.name ? linkable.name : linkable.url}</a>`;
 	}
 
-	static getLatestEntryIndexOn(list: VersionList, date: Date | null) : number | null {
+	static getLatestEntryIndexOn(list: TimeseriesList, date: Date | null) : number | null {
 		if (!list || !list.entries || !date) return null;
 
 		// Find the minimum i such that date >= list.entries[i].
@@ -124,7 +124,7 @@ export class VersionListMethods {
 		return latestIndex;
 	}
 
-	static getFirstEntriesWithMetadata(list: VersionList, latestIndex: number | null = 0) : (Entry | null)[] | null {
+	static getFirstEntriesWithMetadata(list: TimeseriesList, latestIndex: number | null = 0) : (Entry | null)[] | null {
 		if (!list || !list.metadata || latestIndex === null) return null;
 
 		// The ultimate array of first entries to be outputted.
