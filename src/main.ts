@@ -184,7 +184,7 @@ function getListURLOrHashKey(selection: string, optgroup: string | null = null, 
 	if (selection == "From URL" && urlFormID) {
 		// Uploading new URL: extract URL from form
 		const URLForm = ElementUtils.getElementOrNull<HTMLInputElement>(urlFormID);
-		if (!urlFormID || !URLForm.value) return null;
+		if (!URLForm || !URLForm.value) return null;
 		return encodeURI(`${!URLForm.value.match(/^https?:\/\//) ? "https://" : ""}${URLForm.value}`);
 	}
 	if (selection == "From File Upload") {
@@ -231,6 +231,7 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Timeser
 		listForm.selectedOptions[0].closest("optgroup")?.label ?? null,
 		"#list-form-url"
 	);
+	if (!url) return null;
 
 	// New file uploads are handled in queryUploadedFile
 	const fetchResponse = (listForm.value == "From File Upload") ?
