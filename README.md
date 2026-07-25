@@ -82,7 +82,7 @@ Comprehensive example:
                 "https://calendar.example/event/789"
             ],
             "event requiring registration": true
-        },
+        }
     ],
     "defaultLabel": "miscellaneous event",
     "lastModified": "2026-07-26T22:41:00Z"

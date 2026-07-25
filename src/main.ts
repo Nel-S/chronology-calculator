@@ -16,7 +16,7 @@ async function initialize(): Promise<void> {
 	await caches.delete("chronological-calculator-list-cache");
 
 	// Add event listeners.
-	const listForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form");
+	const listForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#list-form");
 	listForm.addEventListener("input", async function(){await respondToNewList();});
 
 	const listURLForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-url");
@@ -31,8 +31,7 @@ async function initialize(): Promise<void> {
 	const utcOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-form");
 	utcOffsetForm.addEventListener("input", async function(){updateRangeOutput(); await recalculate();});
 
-	// Call functions to initialize the page on the current list, date, and time.
-	await respondToNewList();
+	// Initialize the timezone range on the current timezone.
 	updateRangeOutput();
 }
 
@@ -62,8 +61,8 @@ function blankOutputs(message: string = "") {
 	listLastUpdatedBox.innerText = "";
 }
 
-function updateCustomLists(): boolean {
-	const listForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form");
+async function updateCustomLists(newSelection: string | null = null): Promise<boolean> {
+	const listForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#list-form");
 	const customOptionsGroup = ElementUtils.getElementOrThrow("#custom-lists");
 
 	// Save current list selection
@@ -79,7 +78,12 @@ function updateCustomLists(): boolean {
 	customOptionsGroup.innerHTML += `<option>From URL</option><option>From File Upload</option>`;
 
 	// Restore current list selection
-	listForm.value = currentListValue;
+	listForm.value = newSelection ? newSelection : currentListValue;
+	if (newSelection && newSelection != currentListValue) {
+		// await respondToNewList();
+		updateURLVisibility();
+		updateFileUploadVisibility();
+	}
 	return true;
 }
 
@@ -117,7 +121,7 @@ function updateDatetimeResolution(list: TimeseriesList): boolean {
 }
 
 function updateURLVisibility(): boolean {
-	const listForm = ElementUtils.getElementOrNull<HTMLInputElement>("#list-form");
+	const listForm = ElementUtils.getElementOrNull<HTMLSelectElement>("#list-form");
 	const listURLForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-url");
 
 	if (listForm && listForm.value === "From URL") {
@@ -130,7 +134,7 @@ function updateURLVisibility(): boolean {
 }
 
 function updateFileUploadVisibility(): boolean {
-	const listForm = ElementUtils.getElementOrNull<HTMLInputElement>("#list-form");
+	const listForm = ElementUtils.getElementOrNull<HTMLSelectElement>("#list-form");
 	const listFileUploadForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-file-upload");
 
 	if (listForm && listForm.value === "From File Upload") {
@@ -170,56 +174,63 @@ function updateListLastUpdateField(list: TimeseriesList): boolean {
 	return true;
 }
 
-async function getListFromForm(getLastModifed: boolean = false): Promise<TimeseriesList | null> {
-	const listForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form");
-	const listFileUploadForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-file-upload");
-	
-	let url = "";
-	switch (listForm.value) {
-		// Preset lists
-		case "Java Edition":
-			// TODO: Replace with permalink?
-			url = "https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/Minecraft Java Edition Versions.json";
-			break;
-		case "Xbox 360 Edition":
-			url = "https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/Minecraft Xbox 360 Versions.json";
-			break;
+function getListURLOrHashKey(selection: string, optgroup: string | null = null, urlFormID: string | null = null): string | null {
+	const encodedOptgroup = optgroup ? encodeURIComponent(optgroup) : null;
+	const encodedSelection = encodeURIComponent(selection);
+	// Check if the selection is a preset list (not under the "Custom" optgroup)
+	if (optgroup != "Custom") {
+		return `https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/${encodedOptgroup ? encodedOptgroup + "/" : ""}${encodedSelection}.json`;
+	}
+	if (selection == "From URL" && urlFormID) {
 		// Uploading new URL: extract URL from form
-		case "From URL":
-			const listURLForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-url");
-			if (!listURLForm.value) return null;
-			url = `${!listURLForm.value.match(/^https?:\/\//) ? "https://" : ""}${listURLForm.value}`;
-			break;
+		const URLForm = ElementUtils.getElementOrNull<HTMLInputElement>(urlFormID);
+		if (!urlFormID || !URLForm.value) return null;
+		return encodeURI(`${!URLForm.value.match(/^https?:\/\//) ? "https://" : ""}${URLForm.value}`);
+	}
+	if (selection == "From File Upload") {
 		// Uploading new file: hash key is "Custom File #1", etc.
 		// (file extraction) occurs in NetworkUtils.queryUploadedFile()
-		case "From File Upload":
-			url = `Custom File #${customFileUploadsCount + 1}`;
-			break;
-		default:
-			// See if the specified list is a stored custom URL/file.
-			// Both follow the naming convention "Custom [URL/File] #1", etc., so if it is,
-			// the text after the last "#" should be the entry's index + 1.
-			let index: number;
-			try {
-				index = Number(listForm.value.split("#").at(-1)) - 1;
-			} catch {
-				// If it's not a number, we've run out of possibilities and it's an invalid list
-				return null;
-			}
-			if (index < 0) return null;
-			// Corresponding URLs for stored custom URLs are stored in customUrls
-			if (listForm.value.startsWith("Custom URL #") && index < customUrls.length) {
-				url = customUrls[index];
-				break;
-			}
-			// Corresponding hash keys for stored custom files are simply "Custom File #1", etc. itself
-			if (listForm.value.startsWith("Custom File #") && index < customFileUploadsCount) {
-				url = listForm.value;
-				break;
-			}
-			// Otherwise it's not a valid stored URL/file
-			return null;
+		return encodeURIComponent(`Custom File #${customFileUploadsCount + 1}`);
 	}
+	if (selection.startsWith("Custom URL #")) {
+		// Custom URLs: follow the naming convention "Custom URL #1",
+		// so the text after the last "#" should be the entry's index + 1.
+		let index: number;
+		try {
+			index = Number(selection.split("#").at(-1)) - 1;
+			if (index < 0 || index >= customUrls.length) return null;
+		} catch {
+			return null;
+		}
+		// Corresponding URLs for stored custom URLs are stored in customUrls
+		return encodeURI(customUrls[index]);
+	}
+	if (selection.startsWith("Custom File #")) {
+		// Custom files: follow the naming convention "Custom File #1",
+		// so the text after the last "#" should be the entry's index + 1.
+		let index: number;
+		try {
+			index = Number(selection.split("#").at(-1)) - 1;
+			if (index < 0 || index >= customFileUploadsCount) return null;
+		} catch {
+			return null;
+		}
+		// Corresponding hash keys for stored custom files are simply "Custom File #1", etc. themselves
+		return encodeURIComponent(selection);
+	}
+	// We've run out of possibilities and it's an invalid list
+	return null;
+}
+
+async function getListFromForm(getLastModifed: boolean = false): Promise<TimeseriesList | null> {
+	const listForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#list-form");
+	const listFileUploadForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-file-upload");
+	
+	const url = getListURLOrHashKey(
+		listForm.value,
+		listForm.selectedOptions[0].closest("optgroup")?.label ?? null,
+		"#list-form-url"
+	);
 
 	// New file uploads are handled in queryUploadedFile
 	const fetchResponse = (listForm.value == "From File Upload") ?
@@ -230,14 +241,15 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Timeser
 	if (!fetchResponse || !fetchResponse.ok) return null;
 
 	// Store custom URL, if applicable
+	// TODO: Move this out of this function. getListFromForm shouldn't have side effects.
 	if (listForm.value == "From URL" && !customUrls.includes(url)) {
 		customUrls.push(url);
-		updateCustomLists();
+		await updateCustomLists(`Custom URL #${customUrls.length}`);
 	}
 	// Indicate another custom file was uploaded, if applicable
 	else if (listForm.value == "From File Upload" && !customUrls.includes(url)) {
 		++customFileUploadsCount;
-		updateCustomLists();
+		await updateCustomLists(`Custom File #${customFileUploadsCount}`);
 	}
 	// Extract list data, and add last modified date if present
 	try {
