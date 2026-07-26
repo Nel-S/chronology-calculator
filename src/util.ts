@@ -77,6 +77,14 @@ export class ElementUtils {
 }
 
 export class NetworkUtils {
+	static encodeURIIfNotAlready(uri: string) : string {
+		return decodeURI(uri) == uri ? encodeURI(uri) : uri;
+	}
+
+	static encodeURIComponentIfNotAlready(uri: string) : string {
+		return decodeURIComponent(uri) == uri ? encodeURIComponent(uri) : uri;
+	}
+
 	static async queryURL(url: string, cacheName: string | null = null, tryToGetLastModified: boolean = true): Promise<Response | null> {
 		let fetchResponse: Response | undefined = undefined;
 

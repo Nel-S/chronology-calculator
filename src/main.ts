@@ -2,6 +2,7 @@ import {DatetimeWithMemory} from "./datememory.js";
 import {DateUtils, ElementUtils, NetworkUtils} from "./util.js"
 import {type TimeseriesList, TimeseriesListMethods, timeseriesListSchema} from "./lists.js";
 
+// TODO: This would work better as an ordered set than as an array.
 const customUrls: string[] = []
 let customFileUploadsCount: number = 0;
 
@@ -54,20 +55,20 @@ function maybeResetForCustomUpload(): boolean {
 }
 
 function blankOutputs(message: string = "") {
-	const outputContainer = ElementUtils.getElementOrThrow<HTMLInputElement>("#output-container");
+	const outputContainer = ElementUtils.getElementOrThrow<HTMLDivElement>("#output-container");
 	outputContainer.innerHTML = `
 		<div class="list-name">
 			${message}
 		</div>
 	`;
 
-	const listLastUpdatedBox = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-last-updated");
+	const listLastUpdatedBox = ElementUtils.getElementOrThrow<HTMLParagraphElement>("#list-last-updated");
 	listLastUpdatedBox.innerText = "";
 }
 
 function updateCustomLists(newSelection: string | null = null): boolean {
 	const listForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#list-form");
-	const customOptionsGroup = ElementUtils.getElementOrThrow("#custom-lists");
+	const customOptionsGroup = ElementUtils.getElementOrThrow<HTMLOptGroupElement>("#custom-lists");
 
 	// Save current list selection
 	const currentListValue = listForm.value;
@@ -106,7 +107,7 @@ async function updatePageForList(): Promise<void> {
 function updateRangeOutput(): boolean {
 	// Get elements
 	const utcOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-form");
-	const currentUtcOffsetOutput = ElementUtils.getElementOrThrow<HTMLDataElement>("#current-utc-offset");
+	const currentUtcOffsetOutput = ElementUtils.getElementOrThrow<HTMLParagraphElement>("#current-utc-offset");
 
 	currentUtcOffsetOutput.innerText = `(UTC${Number(utcOffsetForm.value) > 0 ? "+" : ""}${utcOffsetForm.value != "0" ? utcOffsetForm.value : ""})`;
 	return true;
@@ -149,7 +150,7 @@ function updateFileUploadVisibility(): boolean {
 
 function updateOutputBoxes(list: TimeseriesList): boolean {
 	if (!list) return false;
-	const outputContainer = ElementUtils.getElementOrThrow<HTMLInputElement>("#output-container");
+	const outputContainer = ElementUtils.getElementOrThrow<HTMLDivElement>("#output-container");
 
 	outputContainer.innerHTML = "";
 	for (let i = 0; i < list.metadata.length + 1; ++i) {
@@ -166,7 +167,7 @@ function updateOutputBoxes(list: TimeseriesList): boolean {
 
 function updateListLastUpdateField(list: TimeseriesList): boolean {
 	if (!list) return false;
-	const listLastUpdatedBox = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-last-updated");
+	const listLastUpdatedBox = ElementUtils.getElementOrThrow<HTMLParagraphElement>("#list-last-updated");
 
 	if (list.lastModified && DateUtils.isValid(list.lastModified)) {
 		listLastUpdatedBox.innerText = `This list was last updated on ${DateUtils.extractDateAndTime(list.lastModified, true)} UTC.`;
@@ -177,8 +178,8 @@ function updateListLastUpdateField(list: TimeseriesList): boolean {
 }
 
 function getListURLOrHashKey(selection: string, optgroup: string | null = null, urlFormID: string | null = null): string | null {
-	const encodedOptgroup = optgroup ? encodeURIComponent(optgroup) : null;
-	const encodedSelection = encodeURIComponent(selection);
+	const encodedOptgroup = optgroup ? NetworkUtils.encodeURIComponentIfNotAlready(optgroup) : null;
+	const encodedSelection = NetworkUtils.encodeURIComponentIfNotAlready(selection);
 	// Check if the selection is a preset list (not under the "Custom" optgroup)
 	if (optgroup != "Custom") {
 		return `https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/${encodedOptgroup ? encodedOptgroup + "/" : ""}${encodedSelection}.json`;
@@ -187,12 +188,12 @@ function getListURLOrHashKey(selection: string, optgroup: string | null = null, 
 		// Uploading new URL: extract URL from form
 		const URLForm = ElementUtils.getElementOrNull<HTMLInputElement>(urlFormID);
 		if (!URLForm || !URLForm.value) return null;
-		return encodeURI(`${!URLForm.value.match(/^https?:\/\//) ? "https://" : ""}${URLForm.value}`);
+		return NetworkUtils.encodeURIIfNotAlready(`${!URLForm.value.match(/^https?:\/\//) ? "https://" : ""}${URLForm.value}`);
 	}
 	if (selection == "From File Upload") {
 		// Uploading new file: hash key is "Custom File #1", etc.
 		// (file extraction) occurs in NetworkUtils.queryUploadedFile()
-		return encodeURIComponent(`Custom File #${customFileUploadsCount + 1}`);
+		return NetworkUtils.encodeURIComponentIfNotAlready(`Custom File #${customFileUploadsCount + 1}`);
 	}
 	if (selection.startsWith("Custom URL #")) {
 		// Custom URLs: follow the naming convention "Custom URL #1",
@@ -205,7 +206,7 @@ function getListURLOrHashKey(selection: string, optgroup: string | null = null, 
 			return null;
 		}
 		// Corresponding URLs for stored custom URLs are stored in customUrls
-		return encodeURI(customUrls[index]);
+		return NetworkUtils.encodeURIIfNotAlready(customUrls[index]);
 	}
 	if (selection.startsWith("Custom File #")) {
 		// Custom files: follow the naming convention "Custom File #1",
@@ -218,7 +219,7 @@ function getListURLOrHashKey(selection: string, optgroup: string | null = null, 
 			return null;
 		}
 		// Corresponding hash keys for stored custom files are simply "Custom File #1", etc. themselves
-		return encodeURIComponent(selection);
+		return NetworkUtils.encodeURIComponentIfNotAlready(selection);
 	}
 	// We've run out of possibilities and it's an invalid list
 	return null;
@@ -245,12 +246,16 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Timeser
 
 	// Store custom URL, if applicable
 	// TODO: Move this out of this function. getListFromForm shouldn't have side effects.
-	if (listForm.value == "From URL" && !customUrls.includes(url)) {
-		customUrls.push(url);
-		updateCustomLists(`Custom URL #${customUrls.length}`);
+	if (listForm.value == "From URL") {
+		const urlIndex = customUrls.indexOf(url);
+		if (urlIndex == -1) {
+			customUrls.push(url);
+		}
+		updateCustomLists(`Custom URL #${urlIndex == -1 ? customUrls.length : urlIndex + 1}`);
 	}
 	// Indicate another custom file was uploaded, if applicable
-	else if (listForm.value == "From File Upload" && !customUrls.includes(url)) {
+	// TODO: There is currently no way to detect duplicate uploads, like can be done with URLs...
+	else if (listForm.value == "From File Upload") {
 		++customFileUploadsCount;
 		updateCustomLists(`Custom File #${customFileUploadsCount}`);
 	}
@@ -280,8 +285,8 @@ async function recalculate(list: TimeseriesList | null = null): Promise<void> {
 	const latestEntriesList = TimeseriesListMethods.getFirstEntriesWithMetadata(list, latestEntryIndex);
 
 	for (let i = 0; i < list.metadata.length + 1; ++i) {
-		const outputBoxName = ElementUtils.getElementOrThrow(`#output-name-${i}`);
-		const outputBoxTime = ElementUtils.getElementOrThrow(`#output-time-${i}`);
+		const outputBoxName = ElementUtils.getElementOrThrow<HTMLParagraphElement>(`#output-name-${i}`);
+		const outputBoxTime = ElementUtils.getElementOrThrow<HTMLParagraphElement>(`#output-time-${i}`);
 		if (!datetime) {
 			outputBoxName.innerText = `[Invalid date/time]`;
 			outputBoxTime.innerText = "";
