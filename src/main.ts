@@ -39,14 +39,18 @@ async function initialize(): Promise<void> {
 async function respondToNewList(): Promise<void> {
 	/* Check if a Custom option was selected (in which case input elements' visibilities need
 	   to be updated, but otherwise a recalculation doesn't need to be performed). */
-	const urlUnhidden = updateURLVisibility();
-	const fileUploadUnhidden = updateFileUploadVisibility();
-	if (urlUnhidden || fileUploadUnhidden) {
-		blankOutputs(`[Waiting${urlUnhidden ? " for URL" : fileUploadUnhidden ? " for file upload" : ""}...]`);
-		return;
-	}
+	if (maybeResetForCustomUpload()) return;
 	// Otherwise, perform a recalculation.
 	await updatePageForList();
+}
+
+function maybeResetForCustomUpload(): boolean {
+	const urlUnhidden = updateURLVisibility();
+	const fileUploadUnhidden = updateFileUploadVisibility();
+	if (!urlUnhidden && !fileUploadUnhidden) return false;
+	
+	blankOutputs(`[Waiting${urlUnhidden ? " for URL" : fileUploadUnhidden ? " for file upload" : ""}...]`);
+	return true;
 }
 
 function blankOutputs(message: string = "") {
@@ -61,7 +65,7 @@ function blankOutputs(message: string = "") {
 	listLastUpdatedBox.innerText = "";
 }
 
-async function updateCustomLists(newSelection: string | null = null): Promise<boolean> {
+function updateCustomLists(newSelection: string | null = null): boolean {
 	const listForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#list-form");
 	const customOptionsGroup = ElementUtils.getElementOrThrow("#custom-lists");
 
@@ -80,9 +84,7 @@ async function updateCustomLists(newSelection: string | null = null): Promise<bo
 	// Restore current list selection
 	listForm.value = newSelection ? newSelection : currentListValue;
 	if (newSelection && newSelection != currentListValue) {
-		// await respondToNewList();
-		updateURLVisibility();
-		updateFileUploadVisibility();
+		maybeResetForCustomUpload();
 	}
 	return true;
 }
@@ -245,17 +247,19 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Timeser
 	// TODO: Move this out of this function. getListFromForm shouldn't have side effects.
 	if (listForm.value == "From URL" && !customUrls.includes(url)) {
 		customUrls.push(url);
-		await updateCustomLists(`Custom URL #${customUrls.length}`);
+		updateCustomLists(`Custom URL #${customUrls.length}`);
 	}
 	// Indicate another custom file was uploaded, if applicable
 	else if (listForm.value == "From File Upload" && !customUrls.includes(url)) {
 		++customFileUploadsCount;
-		await updateCustomLists(`Custom File #${customFileUploadsCount}`);
+		updateCustomLists(`Custom File #${customFileUploadsCount}`);
 	}
 	// Extract list data, and add last modified date if present
 	try {
 		const responseJSON: JSON = await fetchResponse.json();
-		Object.assign(responseJSON, {lastModified: fetchResponse.headers.get("Last-Modified")});
+		if (!Object.keys(responseJSON).includes("lastModified")) {
+			Object.assign(responseJSON, {lastModified: fetchResponse.headers.get("Last-Modified")});
+		}
 		// Parse list and return
 		// TODO: Can we cache the parsed JSON lists instead of the original requests?
 		return timeseriesListSchema.parse(responseJSON);
