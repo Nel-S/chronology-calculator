@@ -13,30 +13,30 @@
 	}
 
 	.title {
-		font-size: x-large;
+		font-size: 1.5rem;
 		font-weight: bold;
 		text-align: center;
 		padding-bottom: 0.5rem;
 	}
 
 	.label {
-		font-size: larger;
+		font-size: 1.25rem;
 		text-align: center;
 	}
 
 	.smaller-label {
-		font-size: medium;
+		font-size: 1rem;
 		text-align: center;
 	}
 
 	.subtext {
-		font-size: larger;
+		font-size: 1.25rem;
 		font-style: italic;
 		text-align: center;
 	}
 
 	.smaller-subtext {
-		font-size: medium;
+		font-size: 1rem;
 		font-style: italic;
 		text-align: center;
 	}

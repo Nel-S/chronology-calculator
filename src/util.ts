@@ -47,7 +47,7 @@ export class ElementUtils {
 	static getIfNullOrThrow<T>(value: T | null, getter: (...args: any[]) => T | null, ...args: any[]): T {
 		if (value !== null) return value;
 		value = getter(args);
-		if (value === null) throw new Error(`Getter ${getter.toString()} could not update variable with a non-null value.`);
+		if (value === null) throw new Error(`Getter ${getter.name} could not update variable with a non-null value.`);
 		return value;
 	}
 
@@ -60,7 +60,7 @@ export class ElementUtils {
 	static async asyncGetIfNullOrThrow<T>(value: T | null, getter: (...args: any[]) => T | null, ...args: any[]): Promise<T> {
 		if (value !== null) return value;
 		value = await getter(args);
-		if (value === null) throw new Error(`Getter ${getter} could not update variable with a non-null value.`);
+		if (value === null) throw new Error(`Getter ${getter.name} could not update variable with a non-null value.`);
 		return value;
 	}
 

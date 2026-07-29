@@ -2,6 +2,7 @@ import {DateUtils, ElementUtils} from "./util.js"
 
 export class DatetimeWithMemory {
     dateElement: HTMLInputElement
+    dateWrapper: HTMLElement
     utcOffsetElement: HTMLInputElement
     utcOffsetWrapper: HTMLElement
 
@@ -9,14 +10,25 @@ export class DatetimeWithMemory {
     lastHours: number | null;
     lastMinutes: number | null;
 
-    constructor(dateID: string, utcOffsetID: string, utcOffsetWrapperID: string) {
+    constructor(dateID: string, dateWrapperID: string, utcOffsetID: string, utcOffsetWrapperID: string) {
         this.dateElement = ElementUtils.getElementOrThrow<HTMLInputElement>(dateID);
+        this.dateWrapper = ElementUtils.getElementOrThrow<HTMLElement>(dateWrapperID);
         this.utcOffsetElement = ElementUtils.getElementOrThrow<HTMLInputElement>(utcOffsetID);
         this.utcOffsetWrapper = ElementUtils.getElementOrThrow<HTMLElement>(utcOffsetWrapperID);
 
         this.highResolution = (this.dateElement.type == "datetime-local");
         this.lastHours = this.lastMinutes = null;
         this.reset();
+    }
+
+    hide(): void {
+        this.dateWrapper.classList.add("hidden-but-keeps-space");
+        this.utcOffsetWrapper.classList.add("hidden-but-keeps-space");
+    }
+
+    show(): void {
+        this.dateWrapper.classList.remove("hidden-but-keeps-space");
+        this.utcOffsetWrapper.classList.remove("hidden-but-keeps-space");
     }
 
     reset(): void {

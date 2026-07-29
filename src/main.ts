@@ -9,8 +9,9 @@ let customFileUploadsCount: number = 0;
 
 const datetimeWithMemory = new DatetimeWithMemory(
 	"#datetime-form",
+	"#input-date",
 	"#utc-offset-form",
-	".input-utc-hires"
+	"#input-utc-hires"
 )
 
 async function initialize(): Promise<void> {
@@ -49,9 +50,13 @@ async function respondToNewList(): Promise<void> {
 function maybeResetForCustomUpload(): boolean {
 	const urlUnhidden = updateURLVisibility();
 	const fileUploadUnhidden = updateFileUploadVisibility();
-	if (!urlUnhidden && !fileUploadUnhidden) return false;
+	if (!urlUnhidden && !fileUploadUnhidden) {
+		datetimeWithMemory.show();
+		return false;
+	}
 	
 	blankOutputs(`[Waiting${urlUnhidden ? " for URL" : fileUploadUnhidden ? " for file upload" : ""}...]`);
+	datetimeWithMemory.hide();
 	return true;
 }
 
