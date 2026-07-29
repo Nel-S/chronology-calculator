@@ -156,7 +156,7 @@ function updateOutputBoxes(list: TimeseriesList): boolean {
 	outputContainer.innerHTML = "";
 	for (let i = 0; i < list.metadata.length + 1; ++i) {
 		outputContainer.innerHTML += `
-		<div id="output-box-${i}">
+		<div id="output-box-${i}" class="output-entry">
 			<p class="label">Latest ${!i ? list.defaultLabel : list.metadata[i-1]}:</p>
 			<p class="list-name" id="output-name-${i}">[Calculating...]</p>
 			<p class="subtext" id="output-time-${i}"></p>

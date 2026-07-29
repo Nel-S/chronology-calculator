@@ -26,12 +26,12 @@
 	</noscript>
 
 	<div class="page">
-		<div>
+		<div class="rounded-box">
 			<h1 class="title">Chronology Calculator</h1>
 		</div>
 
 		<ul class="input-box">
-			<li class="narrow-rounded-box input-entry">
+			<li class="rounded-box input-entry">
 				<label class="label" for="list-form">List:</label>
 				<select id="list-form">
 					<option selected disabled hidden>[No list selected.]</option>
@@ -52,11 +52,11 @@
 				<!-- TODO: Figure out how to center -->
 				<input type="file" id="list-form-file-upload" accept=".json,.JSON" class="hidden">
 			</li>
-			<li class="narrow-rounded-box input-entry">
+			<li class="rounded-box input-entry">
 				<label class="label" for="datetime-form">Date:</label>
 				<input type="datetime-local" id="datetime-form" onclick="this.showPicker()">
 			</li>
-			<li class="narrow-rounded-box input-entry input-utc-hires">
+			<li class="rounded-box input-entry input-utc-hires">
 				<label class="label" for="utc-offset-form">UTC Offset:</label>
 				<input type="range" min="-12" max="14" step="0.25" id="utc-offset-form">
 				<p class="subtext" id="current-utc-offset"></p>
@@ -74,12 +74,14 @@
 		</div>
 	</div>
 	<div class="about smaller-label">
-		<p>This tool uses harmonizations of multiple sources. It may contain errors; please file <a
-				href="https://github.com/Nel-S/latest-version-calculator/issues">an Issue</a> if so.</p>
-		<p>Thank you to <a href="https://github.com/Moresteck">Moresteck</a>, <a
-				href="https://github.com/fanda857">fanda857</a>, and <a
-				href="https://omniarchive.uk/">Omniarchive</a>'s/<a href="https://minecraft.wiki/">the Minecraft
-				Wiki</a>'s contributors for making this possible.</p>
+		<div class="rounded-box">
+			<p>This tool uses harmonizations of multiple sources. It may contain errors; please file <a
+					href="https://github.com/Nel-S/latest-version-calculator/issues">an Issue</a> if so.</p>
+			<p>Thank you to <a href="https://github.com/Moresteck">Moresteck</a>, <a
+					href="https://github.com/fanda857">fanda857</a>, and <a
+					href="https://omniarchive.uk/">Omniarchive</a>'s/<a href="https://minecraft.wiki/">the Minecraft
+					Wiki</a>'s contributors for making this possible.</p>
+		</div>
 	</div>
 
 	<script type="module" src="/src/main.ts"></script>

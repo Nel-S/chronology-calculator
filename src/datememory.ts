@@ -55,7 +55,7 @@ export class DatetimeWithMemory {
         this.highResolution = true;
         const currentDate = DateUtils.getUTCDatetime(this.dateElement);
         this.dateElement.type = "datetime-local";
-        this.utcOffsetWrapper.classList.remove("hidden-but-keeps-space");
+        this.utcOffsetWrapper.classList.remove("hidden");
         if (currentDate == null) this.reset();
         else {
             this.dateElement.value = DateUtils.extractDateAndTime(currentDate);
@@ -68,7 +68,7 @@ export class DatetimeWithMemory {
         this.highResolution = false;
         const currentDate = DateUtils.getUTCDatetime(this.dateElement);
         this.dateElement.type = "date";
-        this.utcOffsetWrapper.classList.add("hidden-but-keeps-space");
+        this.utcOffsetWrapper.classList.add("hidden");
         if (currentDate == null) this.reset();
         else this.dateElement.value = DateUtils.extractDate(currentDate);
     }

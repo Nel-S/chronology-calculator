@@ -12,11 +12,12 @@
 	.input-box {
 		/* Flex attributes */
 		display: flex;
-		flex-flow: row wrap;
+		flex-wrap: wrap;
 		justify-content: space-evenly;
 		align-items: center;
 		/* Layout/style */
 		gap: 1rem;
+
 	}
 
 	.input-entry {
@@ -25,10 +26,11 @@
 		flex: 1 0 0;
 		flex-direction: column;
 		align-items: center;
-		max-width: 20rem;
+		justify-content: space-evenly;
+		/* max-width: 20rem; */
 		/* Layout/style */
-		border: 0.1rem solid #d0d0d0;
-		background-color: #f0f0f0;
+		height: 100%
+		/* border: 0.1rem solid #d0d0d0; */
 	}
 
 	.output-box {
@@ -38,14 +40,29 @@
 		justify-content: space-evenly;
 		/* Layout/style */
 		gap: 1rem;
-		border: 0.1rem solid #e0e0e0;
-		background-color: white;
+		/* border: 0.1rem solid #e0e0e0; */
+	}
+
+	.output-entry {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
 	}
 
 	.list-name {
 		font-size: xx-large;
 		font-weight: bold;
 		text-align: center;
+	}
+
+	@media (max-width: 700px) {
+		.input-entry {
+			height: fit-content;
+			width: 100%;
+		}
+		.input-box {
+			flex-direction: column;
+		}
 	}
 
 	@media (max-width: 520px) {

@@ -1,6 +1,6 @@
 @layer defaults {
 	body {
-		background-color: rgb(196, 246, 255);
+		background-color: rgb(159, 220, 231);
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -13,15 +13,17 @@
 	}
 
 	.title {
-		font-size: x-large;
+		font-size: 2.5rem;
 		font-weight: bold;
 		text-align: center;
 		padding-bottom: 0.5rem;
 	}
 
 	.label {
-		font-size: larger;
+		font-size: medium;
 		text-align: center;
+		font-size: 1.5rem;
+
 	}
 
 	.smaller-label {
@@ -30,9 +32,10 @@
 	}
 
 	.subtext {
-		font-size: larger;
+		font-size: medium;
 		font-style: italic;
 		text-align: center;
+		color: #292929;
 	}
 
 	.smaller-subtext {
@@ -47,14 +50,16 @@
 		vertical-align: top;	
 	}
 
-	.narrow-rounded-box {
+	/* .narrow-rounded-box {
 		padding: 0.5rem;
-		border-radius: 1rem;
-	}
+		border-radius: 0.5rem;
+	} */
 
 	.rounded-box {
 		padding: 1rem;
-		border-radius: 1rem;
+		border-radius: 0.5rem;
+		box-shadow: 0 0 25px #00000025;
+		background-color: #ddf3f8;
 	}
 
 	.about {
