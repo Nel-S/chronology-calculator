@@ -16,7 +16,6 @@
 		font-size: 2.5rem;
 		font-weight: bold;
 		text-align: center;
-		padding-bottom: 0.5rem;
 	}
 
 	.label {
@@ -64,5 +63,11 @@
 
 	.about {
 		padding: 1rem;
+	}
+
+	@media (max-width: 520px) {
+		.title {
+			font-size: 1.5rem;
+		}
 	}
 }
