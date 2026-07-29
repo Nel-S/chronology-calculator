@@ -5,6 +5,11 @@
 		flex-direction: column;
 		width: 100%;
 		height: 100vh;
+		font-family: "Inter", sans-serif;
+	}
+
+	input, select, option, textarea, button {
+		font-family: "Inter", sans-serif;
 	}
 
 	.title {

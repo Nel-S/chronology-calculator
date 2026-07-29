@@ -1,3 +1,4 @@
+import "./assets/style.css";
 import {DatetimeWithMemory} from "./datememory.js";
 import {DateUtils, ElementUtils, NetworkUtils} from "./util.js"
 import {type TimeseriesList, TimeseriesListMethods, timeseriesListSchema} from "./lists.js";
