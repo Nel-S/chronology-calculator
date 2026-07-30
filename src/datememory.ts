@@ -2,19 +2,15 @@ import {DateUtils, ElementUtils} from "./util.js"
 
 export class DatetimeWithMemory {
     dateElement: HTMLInputElement
-    dateWrapper: HTMLElement
     utcOffsetElement: HTMLInputElement
-    utcOffsetWrapper: HTMLElement
 
     highResolution: boolean
     lastHours: number | null;
     lastMinutes: number | null;
 
-    constructor(dateID: string, dateWrapperID: string, utcOffsetID: string, utcOffsetWrapperID: string) {
+    constructor(dateID: string, utcOffsetID: string) {
         this.dateElement = ElementUtils.getElementOrThrow<HTMLInputElement>(dateID);
-        this.dateWrapper = ElementUtils.getElementOrThrow<HTMLElement>(dateWrapperID);
         this.utcOffsetElement = ElementUtils.getElementOrThrow<HTMLInputElement>(utcOffsetID);
-        this.utcOffsetWrapper = ElementUtils.getElementOrThrow<HTMLElement>(utcOffsetWrapperID);
 
         this.highResolution = (this.dateElement.type == "datetime-local");
         this.lastHours = this.lastMinutes = null;
@@ -22,13 +18,25 @@ export class DatetimeWithMemory {
     }
 
     hide(): void {
-        this.dateWrapper.classList.add("hidden-but-keeps-space");
-        this.utcOffsetWrapper.classList.add("hidden-but-keeps-space");
+        if (this.dateElement.parentElement) {
+            this.dateElement.parentElement.classList.add("translucent");
+            this.dateElement.parentElement.inert = true;
+        }
+        if (this.utcOffsetElement.parentElement) {
+            this.utcOffsetElement.parentElement.classList.add("translucent");
+            this.utcOffsetElement.parentElement.inert = true;
+        }
     }
 
     show(): void {
-        this.dateWrapper.classList.remove("hidden-but-keeps-space");
-        this.utcOffsetWrapper.classList.remove("hidden-but-keeps-space");
+        if (this.dateElement.parentElement) {
+            this.dateElement.parentElement.classList.remove("translucent");
+            this.dateElement.parentElement.inert = false;
+        }
+        if (this.utcOffsetElement.parentElement) {
+            this.utcOffsetElement.parentElement.classList.remove("translucent");
+            this.utcOffsetElement.parentElement.inert = false;
+        }
     }
 
     reset(): void {
@@ -67,7 +75,10 @@ export class DatetimeWithMemory {
         this.highResolution = true;
         const currentDate = DateUtils.getUTCDatetime(this.dateElement);
         this.dateElement.type = "datetime-local";
-        this.utcOffsetWrapper.classList.remove("hidden-but-keeps-space");
+        if (this.utcOffsetElement.parentElement) {
+            this.utcOffsetElement.parentElement.classList.remove("translucent");
+            this.utcOffsetElement.parentElement.inert = false;
+        }
         if (currentDate == null) this.reset();
         else {
             this.dateElement.value = DateUtils.extractDateAndTime(currentDate);
@@ -80,7 +91,10 @@ export class DatetimeWithMemory {
         this.highResolution = false;
         const currentDate = DateUtils.getUTCDatetime(this.dateElement);
         this.dateElement.type = "date";
-        this.utcOffsetWrapper.classList.add("hidden-but-keeps-space");
+        if (this.utcOffsetElement.parentElement) {
+            this.utcOffsetElement.parentElement.classList.add("translucent");
+            this.utcOffsetElement.parentElement.inert = true;
+        }
         if (currentDate == null) this.reset();
         else this.dateElement.value = DateUtils.extractDate(currentDate);
     }

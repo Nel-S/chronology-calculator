@@ -6,4 +6,8 @@
 	.hidden-but-keeps-space {
 		visibility: hidden;
 	}
+
+	.translucent {
+		opacity: 0.4;
+	}
 }

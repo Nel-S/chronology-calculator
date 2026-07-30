@@ -9,9 +9,7 @@ let customFileUploadsCount: number = 0;
 
 const datetimeWithMemory = new DatetimeWithMemory(
 	"#datetime-form",
-	"#input-date",
-	"#utc-offset-form",
-	"#input-utc-hires"
+	"#utc-offset-form"
 )
 
 async function initialize(): Promise<void> {
