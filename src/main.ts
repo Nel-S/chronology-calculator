@@ -248,6 +248,21 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Timeser
 		await NetworkUtils.queryURL(url, "chronological-calculator-list-cache", getLastModifed);
 	if (!fetchResponse || !fetchResponse.ok) return null;
 
+	// Extract list data, and add last modified date if present
+	let timeseriesList: TimeseriesList;
+	try {
+		const responseJSON: JSON = await fetchResponse.json();
+		if (!Object.keys(responseJSON).includes("lastModified")) {
+			Object.assign(responseJSON, {lastModified: fetchResponse.headers.get("Last-Modified")});
+		}
+		// Parse list
+		// TODO: Can we cache the parsed JSON lists instead of the original requests?
+		timeseriesList = timeseriesListSchema.parse(responseJSON);
+	} catch {
+		return null;
+	}
+	if (!timeseriesList) return null;
+
 	// Store custom URL, if applicable
 	// TODO: Move this out of this function. getListFromForm shouldn't have side effects.
 	if (listForm.value == "From URL") {
@@ -263,18 +278,8 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Timeser
 		++customFileUploadsCount;
 		updateCustomLists(`Custom File #${customFileUploadsCount}`);
 	}
-	// Extract list data, and add last modified date if present
-	try {
-		const responseJSON: JSON = await fetchResponse.json();
-		if (!Object.keys(responseJSON).includes("lastModified")) {
-			Object.assign(responseJSON, {lastModified: fetchResponse.headers.get("Last-Modified")});
-		}
-		// Parse list and return
-		// TODO: Can we cache the parsed JSON lists instead of the original requests?
-		return timeseriesListSchema.parse(responseJSON);
-	} catch {
-		return null;
-	}
+	// Return list
+	return timeseriesList;
 }
 
 async function recalculate(list: TimeseriesList | null = null): Promise<void> {
