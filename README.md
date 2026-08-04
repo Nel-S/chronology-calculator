@@ -1,6 +1,6 @@
 # Chronology Calculator
 
-**[(Visit the webpage here)](https://nel-s.github.io/latest-version-calculator)**
+**[(Visit the webpage here)](https://nel-s.github.io/chronology-calculator)**
 
 Given a list of timestamped entries, this website finds the latest entries that satisfy a piece of metadata as of a particular date. For example:
 - with a list of software release dates, it can find the latest full version and latest pre-release version on a particular date.

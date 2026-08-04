@@ -186,7 +186,7 @@ function getListURLOrHashKey(selection: string, optgroup: string | null = null, 
 	const encodedSelection = NetworkUtils.encodeURIComponentIfNotAlready(selection);
 	// Check if the selection is a preset list (not under the "Custom" optgroup)
 	if (optgroup != "Custom") {
-		return `https://raw.githubusercontent.com/Nel-S/latest-version-calculator/refs/heads/development/preset-lists/${encodedOptgroup ? encodedOptgroup + "/" : ""}${encodedSelection}.json`;
+		return `https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/stable/preset-lists/${encodedOptgroup ? encodedOptgroup + "/" : ""}${encodedSelection}.json`;
 	}
 	if (selection == "From URL" && urlFormID) {
 		// Uploading new URL: extract URL from form
