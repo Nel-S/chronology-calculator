@@ -29,6 +29,7 @@
 		/* Layout/style */
 		border: 0.1rem solid #d0d0d0;
 		background-color: #f0f0f0;
+		transition: opacity 0.5s;
 	}
 
 	.output-box {

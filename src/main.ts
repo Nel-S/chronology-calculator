@@ -21,10 +21,10 @@ async function initialize(): Promise<void> {
 	listForm.addEventListener("input", async function(){await respondToNewList();});
 
 	const listURLForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-url");
-	listURLForm.addEventListener("change", async function(){await updatePageForList();});
+	listURLForm.addEventListener("change", async function(){blankOutputs("[Processing...]"); await updatePageForList();});
 
 	const listFileUploadForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-file-upload");
-	listFileUploadForm.addEventListener("change", async function(){await updatePageForList();});
+	listFileUploadForm.addEventListener("change", async function(){blankOutputs("[Processing...]");await updatePageForList();});
 
 	const dateForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#datetime-form");
 	dateForm.addEventListener("input", async function(){await recalculate();});
@@ -61,7 +61,7 @@ function maybeResetForCustomUpload(): boolean {
 function blankOutputs(message: string = "") {
 	const outputContainer = ElementUtils.getElementOrThrow<HTMLDivElement>("#output-container");
 	outputContainer.innerHTML = `
-		<div class="list-name">
+		<div class="should-fade-in list-name">
 			${message}
 		</div>
 	`;
@@ -159,7 +159,7 @@ function updateOutputBoxes(list: TimeseriesList): boolean {
 	outputContainer.innerHTML = "";
 	for (let i = 0; i < list.metadata.length + 1; ++i) {
 		outputContainer.innerHTML += `
-		<div id="output-box-${i}">
+		<div class="should-fade-in" id="output-box-${i}">
 			<p class="label">Latest ${!i ? list.defaultLabel : list.metadata[i-1]}:</p>
 			<p class="list-name" id="output-name-${i}">[Calculating...]</p>
 			<p class="subtext" id="output-time-${i}"></p>
@@ -174,19 +174,18 @@ function updateListLastUpdateField(list: TimeseriesList): boolean {
 	const listLastUpdatedBox = ElementUtils.getElementOrThrow<HTMLParagraphElement>("#list-last-updated");
 
 	if (list.lastModified && DateUtils.isValid(list.lastModified)) {
-		listLastUpdatedBox.innerText = `This list was last updated on ${DateUtils.extractDateAndTime(list.lastModified, true)} UTC.`;
+		const MILLISECONDS_PER_DAY = 86400000;
+		listLastUpdatedBox.innerText = `This list was last updated ${Math.floor((new Date().valueOf() - list.lastModified.valueOf())/MILLISECONDS_PER_DAY)} days ago.`;
 	} else {
-		listLastUpdatedBox.innerText = `This list was last updated on an unknown date.`;
+		listLastUpdatedBox.innerText = `It is unknown when this list was last updated.`;
 	}
 	return true;
 }
 
 function getListURLOrHashKey(selection: string, optgroup: string | null = null, urlFormID: string | null = null): string | null {
-	const encodedOptgroup = optgroup ? NetworkUtils.encodeURIComponentIfNotAlready(optgroup) : null;
-	const encodedSelection = NetworkUtils.encodeURIComponentIfNotAlready(selection);
 	// Check if the selection is a preset list (not under the "Custom" optgroup)
 	if (optgroup != "Custom") {
-		return `https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/stable/preset-lists/${encodedOptgroup ? encodedOptgroup + "/" : ""}${encodedSelection}.json`;
+		return `https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/${optgroup ? NetworkUtils.encodeURIComponentIfNotAlready(optgroup) + "/" : ""}${NetworkUtils.encodeURIComponentIfNotAlready(selection)}.json`;
 	}
 	if (selection == "From URL" && urlFormID) {
 		// Uploading new URL: extract URL from form
