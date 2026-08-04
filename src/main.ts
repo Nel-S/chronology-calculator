@@ -234,7 +234,7 @@ async function getListFromForm(getLastModifed: boolean = false): Promise<Timeser
 	
 	const url = getListURLOrHashKey(
 		listForm.value,
-		listForm.selectedOptions[0].closest("optgroup")?.label ?? null,
+		listForm.selectedOptions[0]?.closest("optgroup")?.label ?? null,
 		"#list-form-url"
 	);
 	if (!url) return null;

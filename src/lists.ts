@@ -93,7 +93,7 @@ export class TimeseriesListMethods {
 		return `<a href="${linkable.url}">${linkable.name ? linkable.name : linkable.url}</a>`;
 	}
 
-	static getLatestEntryIndexOn(list: TimeseriesList, date: Date | null) : number | null {
+	static getLatestEntryIndexOn(list: TimeseriesList | null, date: Date | null) : number | null {
 		if (!list || !list.entries || !date) return null;
 
 		// Find the minimum i such that date >= list.entries[i].
@@ -124,16 +124,15 @@ export class TimeseriesListMethods {
 		return latestIndex;
 	}
 
-	static getFirstEntriesWithMetadata(list: TimeseriesList, latestIndex: number | null = 0) : (Entry | null)[] | null {
+	static getFirstEntriesWithMetadata(list: TimeseriesList | null, latestIndex: number | null = 0) : (Entry | null)[] | null {
 		if (!list || !list.metadata || latestIndex === null) return null;
 
 		// The ultimate array of first entries to be outputted.
 		const firstEntries: (Entry | null)[] = new Array(list.metadata.length + 1).fill(null);
 		// A "metadata -> firstEntries index" mapping, for convienence.
-		const metadataIndices: {[x: string]: number} = list.metadata.reduce((accumulator: {[x: string]: number}, datum, index) => {
-			accumulator[datum] = index + 1;
-			return accumulator;
-		}, {});
+		const metadataIndices = Object.fromEntries(
+			list.metadata.map((metadata, index) => [metadata, index + 1])
+		);
 		
 		// For each entry from the latest-index entry onwards, unless all first entries are found:
 		for (let i = latestIndex; i < list.entries.length && firstEntries.some((entry) => entry === null); ++i) {
