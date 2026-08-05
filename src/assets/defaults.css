@@ -12,6 +12,35 @@
 		font-family: "Inter", sans-serif;
 	}
 
+	.stack-horizontally {
+		display: flex;
+		/* flex: 1 0 0; */
+		flex-flow: row;
+	}
+
+	.stack-horizontally-wrap {
+		display: flex;
+		/* flex: 1 0 0; */
+		flex-flow: row wrap;
+	}
+
+	.stack-vertically {
+		display: flex;
+		/* flex: 1 0 0; */
+		flex-flow: column;
+	}
+
+	.stack-vertically-wrap {
+		display: flex;
+		/* flex: 1 0 0; */
+		flex-flow: column wrap;
+	}
+
+	.spaced {
+		justify-content: space-evenly;
+		align-items: center;
+	}
+
 	.title {
 		font-size: 1.5rem;
 		font-weight: bold;

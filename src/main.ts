@@ -7,10 +7,15 @@ import {type TimeseriesList, TimeseriesListMethods, timeseriesListSchema} from "
 const customUrls: string[] = []
 let customFileUploadsCount: number = 0;
 
-const datetimeWithMemory = new DatetimeWithMemory(
-	"#datetime-form",
-	"#utc-offset-form"
-)
+const startDatetimeWithMemory = new DatetimeWithMemory(
+	"#datetime-start-form",
+	"#utc-offset-start-form"
+);
+
+const endDatetimeWithMemory = new DatetimeWithMemory(
+	"#datetime-end-form",
+	"#utc-offset-end-form"
+);
 
 async function initialize(): Promise<void> {
 	// Reset list cache.
@@ -26,14 +31,17 @@ async function initialize(): Promise<void> {
 	const listFileUploadForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-file-upload");
 	listFileUploadForm.addEventListener("change", async function(){blankOutputs("[Processing...]");await updatePageForList();});
 
-	const dateForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#datetime-form");
-	dateForm.addEventListener("input", async function(){await recalculate();});
+	const startDateForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#datetime-start-form");
+	startDateForm.addEventListener("input", async function(){await recalculate();});
 
-	const utcOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-form");
-	utcOffsetForm.addEventListener("input", async function(){updateRangeOutput(); await recalculate();});
+	const startUTCOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-start-form");
+	startUTCOffsetForm.addEventListener("input", async function(){await recalculate();});
 
-	// Initialize the timezone range on the current timezone.
-	updateRangeOutput();
+	const endDateForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#datetime-end-form");
+	endDateForm.addEventListener("input", async function(){await recalculate();});
+
+	const endUTCOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-end-form");
+	endUTCOffsetForm.addEventListener("input", async function(){await recalculate();});
 }
 
 // Function to run whenever the selected list changes.
@@ -49,12 +57,12 @@ function maybeResetForCustomUpload(): boolean {
 	const urlUnhidden = updateURLVisibility();
 	const fileUploadUnhidden = updateFileUploadVisibility();
 	if (!urlUnhidden && !fileUploadUnhidden) {
-		datetimeWithMemory.show();
+		endDatetimeWithMemory.show();
 		return false;
 	}
 	
 	blankOutputs(`[Waiting${urlUnhidden ? " for URL" : fileUploadUnhidden ? " for file upload" : ""}...]`);
-	datetimeWithMemory.hide();
+	endDatetimeWithMemory.hide();
 	return true;
 }
 
@@ -107,23 +115,15 @@ async function updatePageForList(): Promise<void> {
 	await recalculate(list);
 }
 
-// Update the UTC offset output to match the corresponding slider's value.
-function updateRangeOutput(): boolean {
-	// Get elements
-	const utcOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-form");
-	const currentUtcOffsetOutput = ElementUtils.getElementOrThrow<HTMLParagraphElement>("#current-utc-offset");
-
-	currentUtcOffsetOutput.innerText = `(UTC${Number(utcOffsetForm.value) > 0 ? "+" : ""}${utcOffsetForm.value != "0" ? utcOffsetForm.value : ""})`;
-	return true;
-}
-
 // Update the datetime resolution to match the current list.
 function updateDatetimeResolution(list: TimeseriesList): boolean {
 	if (list && list.highResolution) {
-		datetimeWithMemory.toHighResolution();
+		startDatetimeWithMemory.toHighResolution();
+		endDatetimeWithMemory.toHighResolution();
 		return true;
 	}
-	datetimeWithMemory.toLowResolution();
+	startDatetimeWithMemory.toLowResolution();
+	endDatetimeWithMemory.toLowResolution();
 	return false;
 }
 
@@ -287,7 +287,7 @@ async function recalculate(list: TimeseriesList | null = null): Promise<void> {
 		blankOutputs(`[Invalid list]`);
 		return;
 	}
-	const datetime = datetimeWithMemory.read();
+	const datetime = endDatetimeWithMemory.read();
 	
 	const latestEntryIndex = TimeseriesListMethods.getLatestEntryIndexOn(list, datetime);
 	const latestEntriesList = TimeseriesListMethods.getFirstEntriesWithMetadata(list, latestEntryIndex);

@@ -1,6 +1,15 @@
 {
 	"entries": [
 		{
+			"name": "26.3 Snapshot 7",
+			"timestamp": "2026-08-04T14:02Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Snapshot_7",
+			"sources": [
+				"https://web.archive.org/web/20260805015109if_/https://piston-meta.mojang.com/mc/game/version_manifest.json"
+			],
+			"public snapshot": true
+		},
+		{
 			"name": "26.3 Snapshot 6",
 			"timestamp": "2026-07-28T13:59Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Snapshot_6",
