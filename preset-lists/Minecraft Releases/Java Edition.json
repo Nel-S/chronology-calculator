@@ -5,7 +5,7 @@
 			"timestamp": "2026-08-04T14:02:29Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Snapshot_7",
 			"sources": [
-				"https://web.archive.org/web/20260805015109if_/https://piston-meta.mojang.com/mc/game/version_manifest.json"
+				"https://web.archive.org/web/20260805015109if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
 			],
 			"public snapshot": true
 		},
@@ -7261,116 +7261,167 @@
 		},
 		{
 			"name": "0.0.12a_03 (200018)",
-			"timestamp": "2009-05-20T00:18Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a_03"
+			"timestamp": "2009-05-20T00:18:50Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a_03",
+			"sources": [
+				"https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g?gid=1012807242"
+			]
 		},
 		{
 			"name": "0.0.12a_03 (192349)",
-			"timestamp": "2009-05-19T23:49Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a_03"
+			"timestamp": "2009-05-19T23:49:36Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a_03",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-19.155457-0400EDT.txt.~1~#NOTES:_See_19:49:36_message_taken_in_UTC-4"
+			]
 		},
 		{
 			"name": "0.0.12a_02",
-			"timestamp": "2009-05-19T23:19Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a_02"
+			"timestamp": "2009-05-19T23:18:36Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a_02",
+			"sources": [
+				"https://web.archive.org/web/20090520141329if_/http://www.mojang.com:80/notch/minecraft#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header",
+				"https://web.archive.org/web/20200528032335if_/https://echelog.com/logs/browse/lwjgl/1242770400#NOTES:_See_01:19:56_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.12a_01",
-			"timestamp": "2009-05-19T22:45Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a_01"
+			"timestamp": "2009-05-19T22:45:50Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a_01",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-19.155457-0400EDT.txt.~1~#NOTES:_See_18:45:50_message_taken_in_UTC-4"
+			]
 		},
 		{
 			"name": "0.0.12a",
-			"timestamp": "2009-05-19T22:36Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a"
+			"timestamp": "2009-05-19T22:36:09Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.12a",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-19.155457-0400EDT.txt.~1~#NOTES:_See_18:36:09_message_taken_in_UTC-4"
+			]
 		},
 		{
 			"name": "0.0.11a",
-			"timestamp": "2009-05-17T11:56Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.11a"
+			"timestamp": "2009-05-17T11:56:55Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.11a",
+			"sources": [
+				"https://web.archive.org/web/20200528035558if_/https://echelog.com/logs/browse/lwjgl/1242511200#NOTES:_See_13:56:55_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.10a",
-			"timestamp": "2009-05-17T11:53Z",
+			"timestamp": "2009-05-17T11:53:09Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.10a",
-			"private version": true
+			"sources": [
+				"https://web.archive.org/web/20200528035558if_/https://echelog.com/logs/browse/lwjgl/1242511200#NOTES:_See_13:53:09_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.9a",
-			"timestamp": "2009-05-16T19:15Z",
+			"timestamp": "2009-05-16T19:15:08Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.9a",
-			"private version": true
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-16.075419-0400EDT.txt.~1~#NOTES:_See_15:15:08_message_taken_in_UTC-4",
+				"https://web.archive.org/web/20200528035558if_/https://echelog.com/logs/browse/lwjgl/1242511200#NOTES:_13:05:56_message_publicly_posts_link_for_a_user_to_download_the_game"
+			]
 		},
 		{
 			"name": "0.0.3a",
-			"timestamp": "2009-05-16T18:05Z",
+			"timestamp": "2009-05-16T18:05:16Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.3a",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-16.075419-0400EDT.txt.~1~#NOTES:_See_14:05:16_message_taken_in_UTC-4"
+			],
 			"private version": true
 		},
 		{
 			"name": "0.0.2a",
-			"timestamp": "2009-05-16T16:52Z",
+			"timestamp": "2009-05-16T16:52:42Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.2a",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-16.075419-0400EDT.txt.~1~#NOTES:_See_12:52:42_message_taken_in_UTC-4"
+			],
 			"private version": true
 		},
 		{
 			"name": "Private Alpha 161648",
-			"timestamp": "2009-05-16T16:48Z",
+			"timestamp": "2009-05-16T16:48:58Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_Classic_mc-161648",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-16.075419-0400EDT.txt.~1~#NOTES:_See_12:48:58_message_taken_in_UTC-4"
+			],
 			"private version": true
 		},
 		{
 			"name": "Private Alpha 161625",
-			"timestamp": "2009-05-16T16:25Z",
+			"timestamp": "2009-05-16T16:25:56Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_Classic_mc-161625",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-16.075419-0400EDT.txt.~1~#NOTES:_See_12:25:56_message_taken_in_UTC-4"
+			],
 			"private version": true
 		},
 		{
 			"name": "Private Alpha 161616",
-			"timestamp": "2009-05-16T16:16Z",
+			"timestamp": "2009-05-16T16:16:34Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_Classic_mc-161616",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-16.075419-0400EDT.txt.~1~#NOTES:_See_12:16:34_message_taken_in_UTC-4"
+			],
 			"private version": true
 		},
 		{
 			"name": "Private Alpha 161607",
-			"timestamp": "2009-05-16T16:07Z",
+			"timestamp": "2009-05-16T16:07:06Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_Classic_mc-161607",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-16.075419-0400EDT.txt.~1~#NOTES:_See_12:07:06_message_taken_in_UTC-4"
+			],
 			"private version": true
 		},
 		{
 			"name": "RubyDung 161348",
-			"timestamp": "2009-05-16T11:48Z",
+			"timestamp": "2009-05-16T11:48:14Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_pre-Classic_rd-161348",
+			"sources": [
+				"https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g?gid=1453439868#NOTES:_Labelled_as_pc-161148"
+			],
 			"private version": true
 		},
 		{
 			"name": "RubyDung 160052",
-			"timestamp": "2009-05-15T22:42Z",
+			"timestamp": "2009-05-15T22:42:30Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_pre-Classic_rd-160052",
-			"private version": true
-		},
-		{
-			"name": "RubyDung 20090515",
-			"timestamp": "2009-05-15T22:25Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_pre-Classic_rd-20090515",
+			"sources": [
+				"https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g?gid=1453439868#NOTES:_Labelled_as_pc-152252"
+			],
 			"private version": true
 		},
 		{
 			"name": "RubyDung 132328",
-			"timestamp": "2009-05-13T21:28Z",
+			"timestamp": "2009-05-13T21:28:08Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_pre-Classic_rd-132328",
+			"sources": [
+				"https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g?gid=1453439868#NOTES:_Labelled_as_pc-132128"
+			],
 			"private version": true
 		},
 		{
 			"name": "RubyDung 132211",
-			"timestamp": "2009-05-13T20:11Z",
+			"timestamp": "2009-05-13T20:11:00Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_pre-Classic_rd-132211",
+			"sources": [
+				"https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g?gid=1453439868#NOTES:_Labelled_as_pc-132011"
+			],
 			"private version": true
 		},
 		{
 			"name": "RubyDung 131655",
-			"timestamp": "2009-05-13T16:48Z",
+			"timestamp": "2009-05-13T17:00:52Z",
 			"url": "https://minecraft.wiki/w/Cave_game_tech_test",
+			"sources": [
+				"https://web.archive.org/web/20140208190915if_/http://echelog.com/logs/browse/lwjgl/1242165600#NOTES:_See_19:00:52_message_taken_in_UTC+2"
+			],
 			"private version": true
 		}
 	],
