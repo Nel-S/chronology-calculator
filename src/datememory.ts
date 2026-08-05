@@ -93,8 +93,8 @@ export class DatetimeWithMemory {
         const datetime = DateUtils.getUTCDatetime(this.dateElement);
         if (datetime == null) return null;
 
-        if (this.highResolution) datetime.setUTCMinutes(datetime.getUTCMinutes() - 60*Number(this.utcOffsetElement.value));
-        else datetime.setUTCHours(23, 59, 59);
+        if (this.highResolution) datetime.setUTCMinutes(datetime.getUTCMinutes() - 60*Number(this.utcOffsetElement.value), 59, 999);
+        else datetime.setUTCHours(23, 59, 59, 999);
 	    return datetime;
     }
 
@@ -131,9 +131,10 @@ export class DatetimeWithMemory {
     }
 
     toLowResolution(): void {
-        this.save();
-        this.highResolution = false;
         const currentDate = DateUtils.getUTCDatetime(this.dateElement);
+        if (currentDate != null) this.save();
+
+        this.highResolution = false;
         this.dateElement.type = "date";
         if (this.utcOffsetElement.parentElement) {
             this.utcOffsetElement.parentElement.classList.add("translucent");

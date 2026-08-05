@@ -90,7 +90,7 @@ export class TimeseriesListMethods {
 
 	static printLinkable<T extends Linkable>(linkable: T): string {
 		if (!linkable.url) return linkable.name;
-		return `<a href="${linkable.url}">${linkable.name ? linkable.name : linkable.url}</a>`;
+		return `<a href="${linkable.url}" title="${linkable.url}">${linkable.name ? linkable.name : linkable.url}</a>`;
 	}
 
 	static getLatestEntryIndexOn(list: TimeseriesList | null, date: Date | null) : number | null {
