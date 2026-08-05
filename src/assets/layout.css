@@ -1,0 +1,35 @@
+@layer layout {
+	.stack-horizontally {
+		display: flex;
+		flex-flow: row;
+	}
+	@media (max-width: 790px) {
+		.stack-horizontally {
+			flex-wrap: wrap;
+		}
+	}
+
+	.stack-horizontally-wrap {
+		display: flex;
+		flex-flow: row wrap;
+	}
+
+	.stack-vertically {
+		display: flex;
+		flex-flow: column;
+	}
+
+	.stack-vertically-wrap {
+		display: flex;
+		flex-flow: column wrap;
+	}
+
+	.spaced {
+		justify-content: space-evenly;
+		align-items: center;
+	}
+
+	.small-margin {
+		margin: 0.2rem;
+	}
+}

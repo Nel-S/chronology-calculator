@@ -1,6 +1,7 @@
-@layer reset, defaults, components, utilities;
+@layer reset, defaults, layout, components, utilities;
 
 @import url("reset.css") layer(reset);
+@import url("layout.css") layer(layout);
 @import url("defaults.css") layer(defaults);
 @import url("components.css") layer(components);
 @import url("utilities.css") layer(utilities);

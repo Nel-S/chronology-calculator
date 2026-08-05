@@ -17,7 +17,7 @@
 		rel="stylesheet">
 </head>
 
-<body>
+<body class="stack-vertically">
 
 	<noscript>
 		<div>
@@ -61,12 +61,12 @@
 				<input type="file" id="list-form-file-upload" accept=".json,.JSON" class="hidden">
 			</li>
 			<li class="stack-vertically">
-				<div class="narrow-rounded-box input-entry-decoration stack-horizontally-wrap spaced">
-					<div class="translucent stack-vertically spaced" inert>
+				<div class="narrow-rounded-box input-entry-decoration stack-horizontally spaced">
+					<div class="translucent stack-vertically spaced small-margin" inert>
 						<label class="label" for="datetime-start-form">Start Date:</label>
 						<input type="datetime-local" id="datetime-start-form" onclick="this.showPicker()">
 					</div>
-					<div class="translucent stack-vertically spaced" inert>
+					<div class="translucent stack-vertically spaced small-margin" inert>
 						<label class="label" for="utc-offset-start-form">Timezone:</label>
 						<select id="utc-offset-start-form">
 							<option selected disabled hidden>--</option>
@@ -74,12 +74,12 @@
 						</select>
 					</div>
 				</div>
-				<div class="narrow-rounded-box input-entry-decoration stack-horizontally-wrap spaced">
-					<div class="translucent stack-vertically spaced" inert>
+				<div class="narrow-rounded-box input-entry-decoration stack-horizontally spaced">
+					<div class="translucent stack-vertically spaced small-margin" inert>
 						<label class="label" for="datetime-end-form">End Date:</label>
 						<input type="datetime-local" id="datetime-end-form" onclick="this.showPicker()">
 					</div>
-					<div class="translucent stack-vertically spaced" inert>
+					<div class="translucent stack-vertically spaced small-margin" inert>
 						<label class="label" for="utc-offset-end-form">Timezone:</label>
 						<select id="utc-offset-end-form">
 							<option selected disabled hidden>--</option>
