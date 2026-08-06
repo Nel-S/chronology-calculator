@@ -7196,68 +7196,107 @@
 		},
 		{
 			"name": "0.0.15a (05311904)",
-			"timestamp": "2009-05-31T19:04Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.15a_(Multiplayer_Test_1)"
+			"timestamp": "2009-05-31T19:04:26Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.15a_(Multiplayer_Test_1)",
+			"sources": [
+				"https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g?gid=1012807242"
+			]
 		},
 		{
 			"name": "0.0.14a_08",
-			"timestamp": "2009-05-28T20:37Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_08"
+			"timestamp": "2009-05-28T20:37:40Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_08",
+			"sources": [
+				"https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g?gid=1012807242"
+			]
 		},
 		{
 			"name": "0.0.14a_07",
-			"timestamp": "2009-05-28T18:31Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_07"
+			"timestamp": "2009-05-28T18:31:18Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_07",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_20:31:18_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.14a_06",
-			"timestamp": "2009-05-28T18:23Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_06"
+			"timestamp": "2009-05-28T18:23:30Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_06",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_20:23:30_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.14a_05 (1752)",
-			"timestamp": "2009-05-28T17:52Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_05"
+			"timestamp": "2009-05-28T17:52:18Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_05",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_19:52:18_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.14a_05 (1748)",
-			"timestamp": "2009-05-28T17:48Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_05"
+			"timestamp": "2009-05-28T17:48:13Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_05",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_19:48:13_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.14a_04 (1743)",
-			"timestamp": "2009-05-28T17:43Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_04"
+			"timestamp": "2009-05-28T17:43:35Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_04",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_19:43:35_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.14a_04 (1735)",
-			"timestamp": "2009-05-28T17:35Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_04"
+			"timestamp": "2009-05-28T17:35:52Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_04",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_19:35:52_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.14a_03",
-			"timestamp": "2009-05-27T23:02Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_03"
+			"timestamp": "2009-05-27T23:02:24Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_03",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_01:02:24_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.14a_01",
-			"timestamp": "2009-05-27T22:36Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_01"
+			"timestamp": "2009-05-27T22:36:35Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a_01",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_00:36:35_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.14a",
-			"timestamp": "2009-05-27T22:26Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a"
+			"timestamp": "2009-05-27T22:26:45Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.14a",
+			"sources": [
+				"https://dn790003.ca.archive.org/0/items/Rotab-Minecraft-IRC-logs/%23minecraft.20090528.log#NOTES:_See_00:26:45_message_taken_in_UTC+2"
+			]
 		},
 		{
 			"name": "0.0.13a_03",
-			"timestamp": "2009-05-22T18:13Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.13a_03"
+			"timestamp": "2009-05-22T18:13:14Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.13a_03",
+			"sources": [
+				"https://docs.google.com/spreadsheets/d/1YuDRk6zulCPTE5hRDJC797ORQeB27j_lpOM2Y6onb_g?gid=1012807242"
+			]
 		},
 		{
 			"name": "0.0.13a",
-			"timestamp": "2009-05-22T17:46Z",
-			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.13a"
+			"timestamp": "2009-05-22T17:46:21Z",
+			"url": "https://minecraft.wiki/w/Java_Edition_Classic_0.0.13a",
+			"sources": [
+				"https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-21.143555-0400EDT.txt.~1~#NOTES:_See_13:46:21_message_taken_in_UTC-4"
+			]
 		},
 		{
 			"name": "0.0.12a_03 (200018)",
