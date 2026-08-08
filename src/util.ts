@@ -1,11 +1,24 @@
 export class DateUtils {
-	static getUTCDatetime(element: HTMLInputElement): Date | null {
+	static getUTCDatetimeOrNull(element: string | HTMLInputElement): Date | null {
 		// Element.valueAsDate does not work because it is often set to null
 		// even when Element.value is already a valid date.
+		const stringDatetime = element instanceof HTMLElement ? element.value : element;
 		const datetime = new Date(
-			element.value.endsWith("Z") ? element.value : element.value + "Z"
+			/* If the datetime ends with a Z (UTC indicator in ISO) or contains a + (assumed to
+			   be for a timezone indicator), keep the string unchanged.
+			*/
+			stringDatetime.toLowerCase().endsWith("z") || stringDatetime.toLowerCase().endsWith("utc") || stringDatetime.includes("+", 1) ? stringDatetime :
+			/* If the starts of the datetime resembles the ISO specification, append a Z */
+			stringDatetime.match(/^\d+-\d+/) ? stringDatetime + "Z" :
+			/* Otherwise append UTC */
+			stringDatetime + " UTC"
 		);
 		return DateUtils.isValid(datetime) ? datetime : null;
+	}
+	static getUTCDatetimeOrThrow(element: string | HTMLInputElement): Date {
+		const datetime = DateUtils.getUTCDatetimeOrNull(element);
+		if (!datetime) throw new Error(`Datetime provided (${element instanceof HTMLElement ? element.value : element}) could not be parsed as a date or converted to UTC.`);
+		return datetime;
 	}
 	static extractDate(date: Date): string {
 		/* Date.toISOString will be in the format YYYY-MM-DDThh:mm:ss...

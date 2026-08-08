@@ -90,7 +90,7 @@ export class DatetimeWithMemory {
     }
 
     read(): Date | null {
-        const datetime = DateUtils.getUTCDatetime(this.dateElement);
+        const datetime = DateUtils.getUTCDatetimeOrNull(this.dateElement);
         if (datetime == null) return null;
 
         if (this.highResolution) datetime.setUTCMinutes(datetime.getUTCMinutes() - 60*Number(this.utcOffsetElement.value), 59, 999);
@@ -99,15 +99,13 @@ export class DatetimeWithMemory {
     }
 
     save(): void {
-        const datetime = DateUtils.getUTCDatetime(this.dateElement);
-        if (datetime == null) throw new Error(`Tried to save an invalid datetime (${this.dateElement.value}).`);
+        const datetime = DateUtils.getUTCDatetimeOrThrow(this.dateElement);
         this.lastHours = datetime.getUTCHours();
         this.lastMinutes = datetime.getUTCMinutes();
     }
 
     load(): void {
-        const datetime = DateUtils.getUTCDatetime(this.dateElement);
-        if (datetime == null) throw new Error(`Tried to load an invalid datetime (${this.dateElement.value}).`);
+        const datetime = DateUtils.getUTCDatetimeOrThrow(this.dateElement);
         if (this.lastHours != null) datetime.setUTCHours(this.lastHours);
         if (this.lastMinutes != null) datetime.setUTCMinutes(this.lastMinutes);
         this.dateElement.value = DateUtils.extractDateAndTime(datetime);
@@ -115,7 +113,7 @@ export class DatetimeWithMemory {
 
     toHighResolution(): void {
         this.highResolution = true;
-        const currentDate = DateUtils.getUTCDatetime(this.dateElement);
+        const currentDate = DateUtils.getUTCDatetimeOrNull(this.dateElement);
         this.dateElement.type = "datetime-local";
         if (this.utcOffsetElement.parentElement && (
             !this.dateElement.parentElement || !this.dateElement.parentElement.inert
@@ -131,7 +129,7 @@ export class DatetimeWithMemory {
     }
 
     toLowResolution(): void {
-        const currentDate = DateUtils.getUTCDatetime(this.dateElement);
+        const currentDate = DateUtils.getUTCDatetimeOrNull(this.dateElement);
         if (currentDate != null) this.save();
 
         this.highResolution = false;

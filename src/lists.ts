@@ -10,15 +10,23 @@ const urlSchema = z.url({
   error: "Provided URL is invalid or non-HTTP/HTTPS."
 });
 
-const checkedDatetimeSchema = 
-	// Timestamps are originally strings, coerced to dates...
-	z.coerce.date<string>("Provided timestamp is not a string or not a valid datetime.")
-// ...and verified to ensure they're valid dates
-.check(
-	z.refine(
-		(timestamp) => DateUtils.isValid(timestamp),
-		"Provided timestamp does not convert to a valid date or datetime."
-	)
+const checkedDatetimeSchema = z.pipe(
+	z.string("Provided timestamp or datetime is not a valid string."),
+	z.transform((str, ctx) => {
+		try {
+			/* TypeScript cannot recognize that a transform with getUTCDatetimeOrNull, followed
+			   by a refine ensuring it is not null, will actually guarantee all subsequent
+			   invocations will never be null.*/
+			return DateUtils.getUTCDatetimeOrThrow(str);
+		} catch (e) {
+			ctx.issues.push({
+				code: "custom",
+				message: "Provided string could not be converted to a Date object, or could not be converted to UTC.",
+				input: str
+			});
+			return z.NEVER;
+		}
+	})
 )
 
 // TODO: None of these can be converted to strictObjects without errors complaining about an unrecognized key "default". This is likely due to TypeScript's compiling. Is there any workaround?
