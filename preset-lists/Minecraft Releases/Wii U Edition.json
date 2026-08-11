@@ -1,6 +1,6 @@
 {
-    "entries": [
-        		{
+	"entries": [
+		{
 			"name": "Patch 43",
 			"timestamp": "March 19, 2019",
 			"url": "https://minecraft.wiki/w/Wii_U_Edition_Patch_43",
@@ -336,6 +336,6 @@
 				"https://minecraft.wiki/w/Legacy_Console_Edition_version_history?oldid=3679663"
 			]
 		}
-    ],
-    "defaultLabel": "release"
+	],
+	"defaultLabel": "release"
 }

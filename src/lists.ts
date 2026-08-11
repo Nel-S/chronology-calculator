@@ -61,6 +61,8 @@ export const timeseriesListSchema = z.pipe(
 		entries: z.pipe(
 			z.array(entrySchema),
 			// Entries are sorted by time descending
+			// TODO: Determine whether list is generally ordered ascending or descending,
+			// then break ties for entries with identical ties accordingly
 			z.transform(
 				(entries) => [...entries].sort(
 					(a, b) => b.timestamp.getTime() - a.timestamp.getTime()

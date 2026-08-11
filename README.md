@@ -6,7 +6,7 @@ Given a list of timestamped entries, this website finds the latest entries that 
 - with a list of software release dates, it can find the latest full version and latest pre-release version on a particular date.
 - with a list of political office-holders, it can find the latest members of each political party that held that position as of a particular date.
 
-There are a few preset lists bundled with the page, as well as the option to upload your own, either as a JSON file or via a URL.
+There are a few preset lists bundled with the page, as well as the option to upload your own locally, either as a JSON file or via a URL. Both chronologically-ascending and chronologically-descending lists are supported, as are lists with dates/times in different (interpretable) formats or in different timezones.
 
 ## Schemas
 ### Entries
@@ -23,7 +23,7 @@ Minimal example:
 ```json
 {
     "name": "Joe's Wedding",
-    "timestamp": "2023-06-21"
+    "timestamp": "June 21, 2023"
 }
 ```
 Comprehensive example:
@@ -55,7 +55,7 @@ Minimal example:
     "entries": [
         {
             "name": "Joe's Wedding",
-            "timestamp": "2023-06-21"
+            "timestamp": "June 21, 2023"
         }
     ]
 }
@@ -93,4 +93,4 @@ Comprehensive example:
 
 Acknowledgements are listed on the webpage itself. Bug reports, feature suggestions, and pull requests are all welcome.
 
-This repository uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html), where (due to being a webpage and not a software library) the "public API" is considered to be the schema list above, plus all functionality the end user can interact with, and be communicated to in response via the web interface. This definition may grow in scope if endpoints or other methods of interaction are ever added.
+This repository uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html), where (due to being a webpage and not a software library) the "public API" is considered to be the schema list above, plus all functionality the end user can interact with, and be communicated to in response, via the web interface. This definition may grow in scope if endpoints or other methods of interaction are ever added.
