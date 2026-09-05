@@ -1,6 +1,51 @@
 {
 	"entries": [
 		{
+			"name": "26.3 Pre-Release 2",
+			"timestamp": "Fri, 04 Sep 2026 13:58:31 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Pre-Release_2",
+			"sources": [
+				"https://web.archive.org/web/20260905181427if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
+			"name": "26.3 Pre-Release 1",
+			"timestamp": "Tue, 01 Sep 2026 14:53:24 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Pre-Release_1",
+			"sources": [
+				"https://web.archive.org/web/20260902182824if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
+			"name": "26.3 Snapshot 10",
+			"timestamp": "Tue, 25 Aug 2026 14:00:58 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Snapshot_10",
+			"sources": [
+				"https://web.archive.org/web/20260826185351if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
+			"name": "26.3 Snapshot 9",
+			"timestamp": "Mon, 17 Aug 2026 14:03:32 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Snapshot_9",
+			"sources": [
+				"https://web.archive.org/web/20260819043731if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
+			"name": "26.3 Snapshot 8",
+			"timestamp": "Wed, 12 Aug 2026 10:57:39 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Snapshot_8",
+			"sources": [
+				"https://web.archive.org/web/20260812164820if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
 			"name": "26.3 Snapshot 7",
 			"timestamp": "2026-08-04T14:02:29Z",
 			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Snapshot_7",
