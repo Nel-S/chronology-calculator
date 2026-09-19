@@ -189,7 +189,7 @@ function getListURLOrHashKey(
 ): string | null {
 	// Check if the selection is a preset list (not under the "Custom" optgroup)
 	if (optgroup != "Custom") {
-		return `https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/${optgroup ? NetworkUtils.encodeURIComponentIfNotAlready(optgroup) + "/" : ""}${NetworkUtils.encodeURIComponentIfNotAlready(selection)}.json`;
+		return `https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/stable/preset-lists/${optgroup ? NetworkUtils.encodeURIComponentIfNotAlready(optgroup) + "/" : ""}${NetworkUtils.encodeURIComponentIfNotAlready(selection)}.json`;
 	}
 	if (selection == "From URL" && urlFormID) {
 		// Uploading new URL: extract URL from form
