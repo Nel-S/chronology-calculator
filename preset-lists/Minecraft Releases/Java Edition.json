@@ -1,6 +1,50 @@
 {
 	"entries": [
 		{
+			"name": "26.3",
+			"timestamp": "Tue, 15 Sep 2026 15:03:18 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3",
+			"sources": [
+				"https://web.archive.org/web/20260917025824if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			]
+		},
+		{
+			"name": "26.3 Release Candidate 3",
+			"timestamp": "Mon, 14 Sep 2026 14:00:25 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Release_Candidate_3",
+			"sources": [
+				"https://web.archive.org/web/20260914165504/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
+			"name": "26.3 Release Candidate 2",
+			"timestamp": "Fri, 11 Sep 2026 12:32:04 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Release_Candidate_2",
+			"sources": [
+				"https://web.archive.org/web/20260911221927if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
+			"name": "26.3 Release Candidate 1",
+			"timestamp": "Thu, 10 Sep 2026 14:03:02 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Release_Candidate_1",
+			"sources": [
+				"https://web.archive.org/web/20260910185040if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
+			"name": "26.3 Pre-Release 3",
+			"timestamp": "Tue, 08 Sep 2026 14:05:36 GMT",
+			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Pre-Release_3",
+			"sources": [
+				"https://web.archive.org/web/20260909220322if_/https://piston-meta.mojang.com/mc/game/version_manifest.json#NOTES:_See_'x-archive-orig-last-modified'_HTTP_response_header"
+			],
+			"public snapshot": true
+		},
+		{
 			"name": "26.3 Pre-Release 2",
 			"timestamp": "Fri, 04 Sep 2026 13:58:31 GMT",
 			"url": "https://minecraft.wiki/w/Java_Edition_26.3_Pre-Release_2",
