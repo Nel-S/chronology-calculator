@@ -1,4 +1,4 @@
-import {DateUtils, ElementUtils} from "./util.js"
+import {DateUtils, ElementUtils} from "../util.js"
 
 const VALID_TIMEZONES = new Map([
     [-12, "UTC-12"],

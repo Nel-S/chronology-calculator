@@ -53,7 +53,7 @@ const entrySchema = z.catchall(
 	// All other keys are considered metadata, and must be Boolean
 	z.boolean()
 );
-type Entry = z.infer<typeof entrySchema>;
+export type Entry = z.infer<typeof entrySchema>;
 
 export const timeseriesListSchema = z.pipe(
 	// Attributes pulled from JSON
@@ -102,7 +102,7 @@ export class TimeseriesListMethods {
 		if (!linkable.url) return linkable.name;
 		return `<a href="${linkable.url}" title="${linkable.url}">${linkable.name ? linkable.name : linkable.url}</a>`;
 	}
-
+	/** @deprecated: To be replaced with mode-range-selector*/
 	static getLatestEntryIndexOn(list: TimeseriesList | null, date: Date | null) : number | null {
 		if (!list || !list.entries || !date) return null;
 
@@ -134,6 +134,7 @@ export class TimeseriesListMethods {
 		return latestIndex;
 	}
 
+	/** @deprecated: To be replaced with mode-order-selector*/
 	static getFirstEntriesWithMetadata(list: TimeseriesList | null, latestIndex: number | null = 0) : (Entry | null)[] | null {
 		if (!list || !list.metadata || latestIndex === null) return null;
 
