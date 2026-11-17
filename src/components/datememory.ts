@@ -1,7 +1,7 @@
 import {DateUtils, ElementUtils} from "../util.js"
 
 const VALID_TIMEZONES = new Map([
-    [-12, "UTC-12"],
+	[-12, "UTC-12"],
 	[-11, "UTC-11"],
 	[-10, "UTC-10"],
 	[-9.5, "UTC-9:30"],
@@ -15,7 +15,7 @@ const VALID_TIMEZONES = new Map([
 	[-3, "UTC-3"],
 	[-2, "UTC-2"],
 	[-1, "UTC-1"],
-    [0, "UTC"],
+	[0, "UTC"],
 	[1, "UTC+1"],
 	[2, "UTC+2"],
 	[3, "UTC+3"],
@@ -42,103 +42,103 @@ const VALID_TIMEZONES = new Map([
 ]);
 
 export class DatetimeWithMemory {
-    dateElement: HTMLInputElement
-    utcOffsetElement: HTMLSelectElement
+	dateElement: HTMLInputElement
+	utcOffsetElement: HTMLSelectElement
 
-    highResolution: boolean
-    lastHours: number | null;
-    lastMinutes: number | null;
+	highResolution: boolean
+	lastHours: number | null;
+	lastMinutes: number | null;
 
-    constructor(dateID: string, utcOffsetID: string) {
-        this.dateElement = ElementUtils.getElementOrThrow<HTMLInputElement>(dateID);
-        this.utcOffsetElement = ElementUtils.getElementOrThrow<HTMLSelectElement>(utcOffsetID);
-        for (const [value, label] of VALID_TIMEZONES.entries()) this.utcOffsetElement.add(new Option(label, value.toString()));
+	constructor(dateID: string, utcOffsetID: string) {
+		this.dateElement = ElementUtils.getElementOrThrow<HTMLInputElement>(dateID);
+		this.utcOffsetElement = ElementUtils.getElementOrThrow<HTMLSelectElement>(utcOffsetID);
+		for (const [value, label] of VALID_TIMEZONES.entries()) this.utcOffsetElement.add(new Option(label, value.toString()));
 
-        this.highResolution = (this.dateElement.type == "datetime-local");
-        this.lastHours = this.lastMinutes = null;
-    }
+		this.highResolution = (this.dateElement.type == "datetime-local");
+		this.lastHours = this.lastMinutes = null;
+	}
 
-    hide(): void {
-        if (this.dateElement.parentElement) {
-            this.dateElement.parentElement.classList.add("translucent");
-            this.dateElement.parentElement.inert = true;
-        }
-        if (this.utcOffsetElement.parentElement) {
-            this.utcOffsetElement.parentElement.classList.add("translucent");
-            this.utcOffsetElement.parentElement.inert = true;
-        }
-    }
+	hide(): void {
+		if (this.dateElement.parentElement) {
+			this.dateElement.parentElement.classList.add("translucent");
+			this.dateElement.parentElement.inert = true;
+		}
+		if (this.utcOffsetElement.parentElement) {
+			this.utcOffsetElement.parentElement.classList.add("translucent");
+			this.utcOffsetElement.parentElement.inert = true;
+		}
+	}
 
-    show(): void {
-        if (this.dateElement.parentElement) {
-            this.dateElement.parentElement.classList.remove("translucent");
-            this.dateElement.parentElement.inert = false;
-        }
-        if (this.utcOffsetElement.parentElement) {
-            this.utcOffsetElement.parentElement.classList.remove("translucent");
-            this.utcOffsetElement.parentElement.inert = false;
-        }
-    }
+	show(): void {
+		if (this.dateElement.parentElement) {
+			this.dateElement.parentElement.classList.remove("translucent");
+			this.dateElement.parentElement.inert = false;
+		}
+		if (this.utcOffsetElement.parentElement) {
+			this.utcOffsetElement.parentElement.classList.remove("translucent");
+			this.utcOffsetElement.parentElement.inert = false;
+		}
+	}
 
-    reset(): void {
-        // Get user's current datetime
-        const datetime = new Date();
-        const desiredValue = Math.round(-datetime.getTimezoneOffset()/15)/4;
-        this.utcOffsetElement.value = VALID_TIMEZONES.has(desiredValue) ? desiredValue.toString() : "UTC";
-        DateUtils.localToUTC(datetime);
-        this.dateElement.value = (this.highResolution ? DateUtils.extractDateAndTime : DateUtils.extractDate)(datetime);
-    }
+	reset(): void {
+		// Get user's current datetime
+		const datetime = new Date();
+		const desiredValue = Math.round(-datetime.getTimezoneOffset()/15)/4;
+		this.utcOffsetElement.value = VALID_TIMEZONES.has(desiredValue) ? desiredValue.toString() : "UTC";
+		DateUtils.localToUTC(datetime);
+		this.dateElement.value = (this.highResolution ? DateUtils.extractDateAndTime : DateUtils.extractDate)(datetime);
+	}
 
-    read(): Date | null {
-        const datetime = DateUtils.getUTCDatetimeOrNull(this.dateElement);
-        if (datetime == null) return null;
+	read(): Date | null {
+		const datetime = DateUtils.getUTCDatetimeOrNull(this.dateElement);
+		if (datetime == null) return null;
 
-        if (this.highResolution) datetime.setUTCMinutes(datetime.getUTCMinutes() - 60*Number(this.utcOffsetElement.value), 59, 999);
-        else datetime.setUTCHours(23, 59, 59, 999);
-	    return datetime;
-    }
+		if (this.highResolution) datetime.setUTCMinutes(datetime.getUTCMinutes() - 60*Number(this.utcOffsetElement.value), 59, 999);
+		else datetime.setUTCHours(23, 59, 59, 999);
+		return datetime;
+	}
 
-    save(): void {
-        const datetime = DateUtils.getUTCDatetimeOrThrow(this.dateElement);
-        this.lastHours = datetime.getUTCHours();
-        this.lastMinutes = datetime.getUTCMinutes();
-    }
+	save(): void {
+		const datetime = DateUtils.getUTCDatetimeOrThrow(this.dateElement);
+		this.lastHours = datetime.getUTCHours();
+		this.lastMinutes = datetime.getUTCMinutes();
+	}
 
-    load(): void {
-        const datetime = DateUtils.getUTCDatetimeOrThrow(this.dateElement);
-        if (this.lastHours != null) datetime.setUTCHours(this.lastHours);
-        if (this.lastMinutes != null) datetime.setUTCMinutes(this.lastMinutes);
-        this.dateElement.value = DateUtils.extractDateAndTime(datetime);
-    }
+	load(): void {
+		const datetime = DateUtils.getUTCDatetimeOrThrow(this.dateElement);
+		if (this.lastHours != null) datetime.setUTCHours(this.lastHours);
+		if (this.lastMinutes != null) datetime.setUTCMinutes(this.lastMinutes);
+		this.dateElement.value = DateUtils.extractDateAndTime(datetime);
+	}
 
-    toHighResolution(): void {
-        this.highResolution = true;
-        const currentDate = DateUtils.getUTCDatetimeOrNull(this.dateElement);
-        this.dateElement.type = "datetime-local";
-        if (this.utcOffsetElement.parentElement && (
-            !this.dateElement.parentElement || !this.dateElement.parentElement.inert
-        )) {
-            this.utcOffsetElement.parentElement.classList.remove("translucent");
-            this.utcOffsetElement.parentElement.inert = false;
-        }
-        if (currentDate == null) this.reset();
-        else {
-            this.dateElement.value = DateUtils.extractDateAndTime(currentDate);
-            this.load();
-        }
-    }
+	toHighResolution(): void {
+		this.highResolution = true;
+		const currentDate = DateUtils.getUTCDatetimeOrNull(this.dateElement);
+		this.dateElement.type = "datetime-local";
+		if (this.utcOffsetElement.parentElement && (
+			!this.dateElement.parentElement || !this.dateElement.parentElement.inert
+		)) {
+			this.utcOffsetElement.parentElement.classList.remove("translucent");
+			this.utcOffsetElement.parentElement.inert = false;
+		}
+		if (currentDate == null) this.reset();
+		else {
+			this.dateElement.value = DateUtils.extractDateAndTime(currentDate);
+			this.load();
+		}
+	}
 
-    toLowResolution(): void {
-        const currentDate = DateUtils.getUTCDatetimeOrNull(this.dateElement);
-        if (currentDate != null) this.save();
+	toLowResolution(): void {
+		const currentDate = DateUtils.getUTCDatetimeOrNull(this.dateElement);
+		if (currentDate != null) this.save();
 
-        this.highResolution = false;
-        this.dateElement.type = "date";
-        if (this.utcOffsetElement.parentElement) {
-            this.utcOffsetElement.parentElement.classList.add("translucent");
-            this.utcOffsetElement.parentElement.inert = true;
-        }
-        if (currentDate == null) this.reset();
-        else this.dateElement.value = DateUtils.extractDate(currentDate);
-    }
+		this.highResolution = false;
+		this.dateElement.type = "date";
+		if (this.utcOffsetElement.parentElement) {
+			this.utcOffsetElement.parentElement.classList.add("translucent");
+			this.utcOffsetElement.parentElement.inert = true;
+		}
+		if (currentDate == null) this.reset();
+		else this.dateElement.value = DateUtils.extractDate(currentDate);
+	}
 }

@@ -34,7 +34,7 @@ const linkableSchema = z.object({
 	name: z.string("Provided name for a linkable object is not a valid string."),
 	url: urlSchema
 });
-type Linkable = z.infer<typeof linkableSchema>;
+export type Linkable = z.infer<typeof linkableSchema>;
 
 const entrySchema = z.catchall(
 	// Base schema

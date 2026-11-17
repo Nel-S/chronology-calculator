@@ -3,52 +3,61 @@ import {Selector} from "./selector.js";
 
 const DEFAULT_ORDERS = new Map([
 	[
-		"First", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] {
-			return indices.map(
-				(indexPair) => metadata ?
-					EntryMethods.firstMetadata(list, indexPair) :
-					[list.entries[indexPair[0]]]
-			);
+		"First", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+			return metadata ?
+				indices.map(
+					(indexPair) => EntryMethods.firstMetadata(list, indexPair)
+				) :
+				indices.map(
+					(indexPair) => list.entries[indexPair[1]]
+				);
 		}
 	],
 	[
-		"Last", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] {
-			return indices.map(
-				(indexPair) => metadata ?
-					EntryMethods.lastMetadata(list, indexPair) :
-					[list.entries[indexPair[1]]]
-			);
+		"Last", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+			return metadata ?
+				indices.map(
+					(indexPair) => EntryMethods.lastMetadata(list, indexPair)
+				) :
+				indices.map(
+					(indexPair) => list.entries[indexPair[0]]
+				);
 		}
 	],
 	[
-		"Median", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] {
-			return indices.map(
-				(indexPair) => {
-					if (metadata) return EntryMethods.medianMetadata(list, indexPair);
-					const oddNumberOfEntries = (indexPair[0] & 1) == (indexPair[1] & 1);
-					const median = Math.floor((indexPair[0] + indexPair[1])/2.);
-					return oddNumberOfEntries ?
-						[list.entries[median]] :
-						[list.entries[median], list.entries[median+1]];
-				}
-			);
+		"Median", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+			return metadata ?
+				indices.map(
+					(indexPair) => EntryMethods.medianMetadata(list, indexPair)
+				) :
+				indices.flatMap(
+					(indexPair) => {
+						const oddNumberOfEntries = (indexPair[0] & 1) == (indexPair[1] & 1);
+						const median = Math.floor((indexPair[0] + indexPair[1])/2.);
+						return oddNumberOfEntries ?
+							list.entries[median] :
+							[list.entries[median], list.entries[median+1]];
+					}
+				);
 		}
 	],
 	[
-		"Random", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] {
-			return indices.map(
-				(indexPair) => metadata ?
-					EntryMethods.randomMetadata(list, indexPair) :
-					[list.entries[
+		"Random", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+			return metadata ?
+				indices.map(
+					(indexPair) => EntryMethods.randomMetadata(list, indexPair)
+				) :
+				indices.map(
+					(indexPair) => list.entries[
 						indexPair[0] + Math.floor(Math.random()*(indexPair[1] - indexPair[0] + 1))
-					]]
-			);
+					]
+				);
 		}
 	],
 	[
-		"All", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] {
-			metadata; // TODO: Possibly make different?
-			return indices.map(
+		"All", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+			if (metadata) throw new Error("'All' is not currently supported with split metadata.");
+			return indices.flatMap(
 				(indexPair) => list.entries.slice(indexPair[0], indexPair[1]+1)
 			);
 		}
@@ -67,7 +76,7 @@ const DEFAULT_TYPES = new Map([
 ]);
 
 class EntryMethods {
-	static firstMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
+	static lastMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
 		if (!list || !list.metadata || !indices) return [];
 
 		// The ultimate array of first entries to be outputted.
@@ -95,10 +104,10 @@ class EntryMethods {
 		return entries;
 	}
 
-	static lastMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
+	static firstMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
 		if (!list || !list.metadata || !indices) return [];
 
-		// The ultimate array of first entries to be outputted.
+		// The ultimate array of last entries to be outputted.
 		const entries: (Entry | null)[] = new Array(list.metadata.length + 1).fill(null);
 		// A "metadata -> entries index" mapping, for convienence.
 		const metadataIndices = Object.fromEntries(
@@ -181,24 +190,31 @@ class EntryMethods {
 
 export class ModeOrderSelector {
 	orderSelector: Selector<
-		(list: TimeseriesList, indices: [number, number][], metadata: boolean) => (Entry | null)[][],
+		(list: TimeseriesList, indices: [number, number][], metadata: boolean) => (Entry | null)[][] | (Entry | null)[],
 		HTMLSelectElement
 	>;
+	// TODO: Replace with checkbox
 	typeSelector: Selector<
 		boolean,
 		HTMLSelectElement
 	>
 	constructor(ordersElementID: string, typeElementID: string) {
 		this.orderSelector = new Selector<
-			(list: TimeseriesList, indices: [number, number][], metadata: boolean) => (Entry | null)[][],
+			(list: TimeseriesList, indices: [number, number][], metadata: boolean) => (Entry | null)[][]  | (Entry | null)[],
 			HTMLSelectElement
 		>(ordersElementID).addAll(DEFAULT_ORDERS);
+		if (this.orderSelector.contains("Last")) {
+			this.orderSelector.element.value = "Last";
+		}
 		this.typeSelector = new Selector<
 			boolean, HTMLSelectElement
 		>(typeElementID).addAll(DEFAULT_TYPES);
+		if (this.typeSelector.contains("Of Each Metadata")) {
+			this.typeSelector.element.value = "Of Each Metadata";
+		}
 	}
 
-	evaluate(list: TimeseriesList, indices: [number, number][]): (Entry | null)[][] {
+	evaluate(list: TimeseriesList, indices: [number, number][]): (Entry | null)[][] | (Entry | null)[] {
 		const currentFunction = this.orderSelector.get().value;
 		const type = this.typeSelector.get().value;
 		if (!currentFunction || type == null) return [];

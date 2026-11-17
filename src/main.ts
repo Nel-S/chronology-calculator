@@ -1,11 +1,22 @@
 import "./assets/style.css";
 import {DatetimeWithMemory} from "./components/datememory.js";
-import {DateUtils, ElementUtils, NetworkUtils} from "./util.js"
+import {DateUtils, ElementUtils, NetworkUtils, StringUtils} from "./util.js"
 import {type TimeseriesList, TimeseriesListMethods, timeseriesListSchema} from "./lists.js";
+import { ModeOrderSelector } from "./components/mode-order-selector.js";
+import { ModeRangeSelector } from "./components/mode-range-selector.js";
 
 // TODO: This would work better as an ordered set than as an array.
 const customUrls: string[] = []
 let customFileUploadsCount: number = 0;
+
+const modeOrder = new ModeOrderSelector(
+	"#mode-form-order",
+	"#mode-form-type"
+);
+const modeRange = new ModeRangeSelector(
+	"#mode-form-range",
+	"#mode-form-inclusivity"
+);
 
 const startDatetimeWithMemory = new DatetimeWithMemory(
 	"#datetime-start-form",
@@ -109,7 +120,7 @@ async function updatePageForList(): Promise<void> {
 		return;
 	}
 
-	updateOutputBoxes(list);
+	blankOutputs(`[Calculating...]`);
 	updateDatetimeResolution(list);
 	updateListLastUpdateField(list);
 	await recalculate(list);
@@ -150,23 +161,6 @@ function updateFileUploadVisibility(): boolean {
 	}
 	listFileUploadForm.classList.add("hidden");
 	return false;
-}
-
-function updateOutputBoxes(list: TimeseriesList): boolean {
-	if (!list) return false;
-	const outputContainer = ElementUtils.getElementOrThrow<HTMLDivElement>("#output-container");
-
-	outputContainer.innerHTML = "";
-	for (let i = 0; i < list.metadata.length + 1; ++i) {
-		outputContainer.innerHTML += `
-		<div class="should-fade-in" id="output-box-${i}">
-			<p class="label">Latest ${!i ? list.defaultLabel : list.metadata[i-1]}:</p>
-			<p class="list-name" id="output-name-${i}">[Calculating...]</p>
-			<p class="subtext" id="output-time-${i}"></p>
-		</div>
-		`
-	}
-	return true;
 }
 
 function updateListLastUpdateField(list: TimeseriesList): boolean {
@@ -291,41 +285,87 @@ async function recalculate(list: TimeseriesList | null = null): Promise<void> {
 		blankOutputs(`[Invalid list]`);
 		return;
 	}
-	const datetime = endDatetimeWithMemory.read();
+	const startDatetime = startDatetimeWithMemory.read();
+	if (!startDatetime) {
+		blankOutputs(`[Invalid start date/time]`);
+		return;
+	}
+	const endDatetime = endDatetimeWithMemory.read();
+	if (!endDatetime) {
+		blankOutputs(`[Invalid end date/time]`);
+		return;
+	}
 	
-	const latestEntryIndex = TimeseriesListMethods.getLatestEntryIndexOn(list, datetime);
-	const latestEntriesList = TimeseriesListMethods.getFirstEntriesWithMetadata(list, latestEntryIndex);
+	const entryIndexRanges = modeRange.evaluate(list, {lower: startDatetime, upper: endDatetime});
+	console.log(`Entry index ranges:`);
+	console.log(entryIndexRanges);
+	const entriesOrLists = modeOrder.evaluate(list, entryIndexRanges);
+	console.log(`Entry lists:`);
+	console.log(entriesOrLists, entriesOrLists.length);
+	if (!entriesOrLists) {
+		blankOutputs("[No entries exist]");
+		return;
+	}
 
-	for (let i = 0; i < list.metadata.length + 1; ++i) {
-		const outputBoxName = ElementUtils.getElementOrThrow<HTMLParagraphElement>(`#output-name-${i}`);
-		const outputBoxTime = ElementUtils.getElementOrThrow<HTMLParagraphElement>(`#output-time-${i}`);
-		if (!datetime) {
-			outputBoxName.innerText = `[Invalid date/time]`;
-			outputBoxTime.innerText = "";
-			continue;
-		}
+	const outputContainer = ElementUtils.getElementOrThrow<HTMLDivElement>("#output-container");
+	outputContainer.innerHTML = "";
+	for (const entryOrList of entriesOrLists) {
+		// console.log("Current entry list:");
+		// console.log(entryOrList, entryOrList.length);
+		if (!entryOrList) continue;
+		if (entryOrList instanceof Array) {
+			outputContainer.innerHTML += `<div class="stack-horizontally-wrap spaced">`;
+			for (let i = 0; i < list.metadata.length + 1; ++i) {
+				const currentEntry = entryOrList[i];
+				// console.log("Current entry:");
+				// console.log(currentEntry);
+				let nameText: string;
+				let timeText: string;
 
-		if (!latestEntriesList) {
-			outputBoxName.innerText = `[None existed]`;
-			outputBoxTime.innerText = "";
-			continue;
-		}
+				if (!currentEntry) {
+					nameText = "[None existed]";
+					timeText = "";
+				} else {
+					nameText = TimeseriesListMethods.printLinkable(currentEntry);
+					for (let j = 0; j < currentEntry.sources.length; ++j) {
+						nameText += `<sup>${TimeseriesListMethods.printLinkable({
+							name: `[${j + 1}]`,
+							url: currentEntry.sources[j]
+						})}</sup>`;
+					}
+					timeText = `~ ${list.highResolution ? DateUtils.extractDateAndTime(currentEntry.timestamp, true) + " UTC" : DateUtils.extractDate(currentEntry.timestamp)}`;
+				}
 
-		const currentLatestEntry = latestEntriesList[i];
-		if (!currentLatestEntry) {
-			outputBoxName.innerText = `[None existed]`;
-			outputBoxTime.innerText = "";
-			continue;
+				outputContainer.innerHTML += `
+		<div class="should-fade-in">
+			<p class="label">${StringUtils.capitalize(!i ? list.defaultLabel : list.metadata[i-1])}:</p>
+			<p class="list-name">${nameText}</p>
+			<p class="subtext">${timeText}</p>
+		</div>`
+			}
+			outputContainer.innerHTML += `</div>`;
+			console.group(outputContainer.innerHTML);
+		} else {
+			let nameText = TimeseriesListMethods.printLinkable(entryOrList);
+			for (let j = 0; j < entryOrList.sources.length; ++j) {
+				nameText += `<sup>${TimeseriesListMethods.printLinkable({
+					name: `[${j + 1}]`,
+					url: entryOrList.sources[j]
+				})}</sup>`;
+			}
+			let subtext = `~ ${list.highResolution ? DateUtils.extractDateAndTime(entryOrList.timestamp, true) + " UTC" : DateUtils.extractDate(entryOrList.timestamp)}`;
+			const currentEntryMetadata = Object.keys(entryOrList).filter(
+				(key) => list.metadata.includes(key)
+			);
+			for (const metadata of (currentEntryMetadata.length ? currentEntryMetadata : [list.defaultLabel])) {
+				subtext += `, ${metadata}`;
+			}
+			outputContainer.innerHTML += `
+		<div class="should-fade-in">
+			<p class="list-name">${nameText}</p>
+			<p class="subtext">${subtext}</p>
+		</div>`
 		}
-
-		outputBoxName.innerHTML = TimeseriesListMethods.printLinkable(currentLatestEntry);
-		for (let j = 0; j < currentLatestEntry.sources.length; ++j) {
-			outputBoxName.innerHTML += `<sup>${TimeseriesListMethods.printLinkable({
-				name: `[${j + 1}]`,
-				url: currentLatestEntry.sources[j]
-			})}</sup>`;
-		}
-		outputBoxTime.innerText = `~ ${list.highResolution ? DateUtils.extractDateAndTime(currentLatestEntry.timestamp, true) + " UTC" : DateUtils.extractDate(currentLatestEntry.timestamp)}`;
 	}
 }
 

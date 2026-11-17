@@ -33,11 +33,16 @@
 		<ul class="input-box stack-horizontally-wrap spaced">
 			<li class="narrow-rounded-box input-entry-decoration stack-vertically">
 				<label class="label" for="mode-form">Mode:</label>
-				<select id="mode-form">
-					<option>Last Entry Before Date</option>
-					<!-- <option>First Entry After Date</option> -->
-					<!-- <option>Entries in Date Range</option> -->
-				</select>
+				<div class="mode-form">
+					<div class="stack-horizontally spaced">
+						<select id="mode-form-order"></select>
+						<select id="mode-form-type"></select>
+					</div>
+					<div class="stack-horizontally spaced">
+						<select id="mode-form-range"></select>
+						<select id="mode-form-inclusivity"></select>
+					</div>
+				</div>
 			</li>
 			<li class="narrow-rounded-box input-entry-decoration stack-vertically">
 				<label class="label" for="list-form">List:</label>
@@ -96,7 +101,7 @@
 			</li>
 		</ul>
 
-		<div class="rounded-box output-box-decoration stack-horizontally-wrap spaced" id="output-container">
+		<div class="rounded-box output-box-decoration stack-vertically spaced" id="output-container">
 			<div class="list-name">
 				[Waiting for list selection.]
 			</div>

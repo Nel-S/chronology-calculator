@@ -143,6 +143,7 @@ export class ModeRangeSelector {
 		(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean) => [number, number][],
 		HTMLSelectElement
 	>;
+	// TODO: Replace with checkbox
 	inclusivitySelector: Selector<
 		boolean,
 		HTMLSelectElement
@@ -153,9 +154,15 @@ export class ModeRangeSelector {
 			(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean) => [number, number][],
 			HTMLSelectElement
 		>(rangesElementID).addAll(DEFAULT_RANGES);
+		if (this.rangeSelector.contains("Before/During Start Date")) {
+			this.rangeSelector.element.value = "Before/During Start Date";
+		}
 		this.inclusivitySelector = new Selector<
 			boolean, HTMLSelectElement
 		>(inclusivityElementID).addAll(DEFAULT_INCLUSIVITY_VALUES);
+		if (this.inclusivitySelector.contains("Inclusive")) {
+			this.inclusivitySelector.element.value = "Inclusive";
+		}
 	}
 
 	evaluate(list: TimeseriesList, dates: {lower: Date, upper: Date}): [number, number][] {

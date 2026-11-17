@@ -3,7 +3,6 @@ import {ElementUtils} from "../util.js"
 export class Selector<T, E extends HTMLElement> {
 	element: E;
 	mapper: Map<string, T>;
-	selection: string | null = null;
 
 	constructor(elementID: string) {
 		this.element = ElementUtils.getElementOrThrow<E>(elementID);
@@ -14,38 +13,37 @@ export class Selector<T, E extends HTMLElement> {
 	reset(): Selector<T, E> {
 		this.mapper.clear();
 		if (this.element instanceof HTMLSelectElement) {
-			this.element.innerHTML = "<option selected disabled hidden>[No mode selected.]</option>";
+			this.element.innerHTML = "<option selected disabled hidden>[Waiting for selection.]</option>";
+		} else if (this.element instanceof HTMLInputElement) {
+			this.element.value = "";
 		}
 		return this;
+	}
+
+	contains(label: string): boolean {
+		return this.mapper.has(label);
 	}
 
 	list(): string[] {
 		return Array.from(this.mapper.keys());
 	}
 
-	select(label: string): boolean {
-		if (!this.mapper.has(label)) return false;
-		if (this.element instanceof HTMLSelectElement) {
-			let found = false;
-			for (let i = 0; i < this.element.options.length; ++i) {
-				if (this.element.options[i].label === label) {
-					this.element.selectedIndex = i;
-					found = true;
-					break;
-				}
-			}
-			if (!found) return false;
-		}
-		this.selection = label;
-		return true;
-	}
-
 	get(): {label: string | null, value: T | null} {
-		if (this.selection == null) return {label: null, value: null};
-		const value = this.mapper.get(this.selection);
+		let label: string | null;
+		if (this.element instanceof HTMLSelectElement && this.element.selectedOptions.length) {
+			label = this.element.selectedOptions.item(0)?.label ?? null
+		} else if (this.element instanceof HTMLInputElement) {
+			label = this.element.value;
+		} else {
+			// throw new Error("Attempted to get value from an HTML element with an unsupported type.");
+			label = null;
+		}
+		if (label == null) return {label: null, value: null};
+
+		const value = this.mapper.get(label) ?? null;
 		return {
-			label: this.selection,
-			value: value != undefined ? value : null
+			label: label,
+			value: value
 		};
 	}
 
@@ -82,6 +80,18 @@ export class Selector<T, E extends HTMLElement> {
 		labels: Iterable<string>
 	): Selector<T, E> {
 		for (const label of labels) this.remove(label);
+		return this;
+	}
+
+	hide(): Selector<T, E> {
+		this.element.classList.add("translucent");
+		this.element.inert = true;
+		return this;
+	}
+
+	show(): Selector<T, E> {
+		this.element.classList.remove("translucent");
+		this.element.inert = false;
 		return this;
 	}
 }
