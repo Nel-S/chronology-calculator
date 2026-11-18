@@ -4,45 +4,45 @@ import {Selector} from "./selector.js";
 
 const DEFAULT_RANGES = new Map([
 	[
-		"Before/During Start Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean = true): [number, number][] {
-			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.lower, inclusive);
+		"Before/During Start Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.lower, exclusive);
 			if (maxIndex === null) return [];
 			return [[maxIndex, list.entries.length - 1]];
 		}
 	],
 	[
-		"After/During Start Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean = true): [number, number][] {
-			const minIndex = IndexMethods.minIndexAfterDate(list, dates.lower, inclusive);
+		"After/During Start Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+			const minIndex = IndexMethods.minIndexAfterDate(list, dates.lower, exclusive);
 			if (minIndex === null) return [];
 			return [[0, minIndex]];
 		}
 	],
 	[
-		"Before/During End Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean = true): [number, number][] {
-			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.upper, inclusive);
+		"Before/During End Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.upper, exclusive);
 			if (maxIndex === null) return [];
 			return [[maxIndex, list.entries.length - 1]];
 		}
 	],
 	[
-		"After/During End Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean = true): [number, number][] {
-			const minIndex = IndexMethods.minIndexAfterDate(list, dates.upper, inclusive);
+		"After/During End Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+			const minIndex = IndexMethods.minIndexAfterDate(list, dates.upper, exclusive);
 			if (minIndex === null) return [];
 			return [[0, minIndex]];
 		}
 	],
 	[
-		"Between/During Dates", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean = true): [number, number][] {
-			const minIndex = IndexMethods.minIndexAfterDate(list, dates.lower, inclusive);
-			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.upper, inclusive);
+		"Between/During Dates", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+			const minIndex = IndexMethods.minIndexAfterDate(list, dates.lower, exclusive);
+			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.upper, exclusive);
 			if (minIndex === null || maxIndex === null) return [];
 			return [[maxIndex, minIndex]];
 		}
 	],
 	[
-		"Not Between/During Dates", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean = true): [number, number][] {
-			const beforeMaxIndex = IndexMethods.maxIndexBeforeDate(list, dates.lower, inclusive);
-			const afterMinIndex = IndexMethods.minIndexAfterDate(list, dates.upper, inclusive);
+		"Not Between/During Dates", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+			const beforeMaxIndex = IndexMethods.maxIndexBeforeDate(list, dates.lower, exclusive);
+			const afterMinIndex = IndexMethods.minIndexAfterDate(list, dates.upper, exclusive);
 			if (beforeMaxIndex === null || afterMinIndex === null) return [];
 			return [[0, afterMinIndex], [beforeMaxIndex, list.entries.length - 1]];
 		}
@@ -53,7 +53,7 @@ class IndexMethods {
 	static maxIndexBeforeDate(
 		list: TimeseriesList | null,
 		date: Date | null,
-		inclusive: boolean = true
+		exclusive: boolean = false
 	) : number | null {
 		if (!list || !list.entries || !date) return null;
 
@@ -67,8 +67,8 @@ class IndexMethods {
 			const middleIndex = Math.floor((latestIndex + earliestIndex)/2);
 			// If not (date >= list.entries[i]), we can discard entries 0-i
 			if (
-				inclusive ? date < list.entries[middleIndex].timestamp
-				: date <= list.entries[middleIndex].timestamp
+				exclusive ? date <= list.entries[middleIndex].timestamp
+				: date < list.entries[middleIndex].timestamp
 			) {
 				latestIndex = middleIndex + 1;
 				continue;
@@ -91,7 +91,7 @@ class IndexMethods {
 	static minIndexAfterDate(
 		list: TimeseriesList | null,
 		date: Date | null,
-		inclusive: boolean = true
+		exclusive: boolean = false
 	) : number | null {
 		// TODO: Verify logic
 		if (!list || !list.entries || !date) return null;
@@ -106,8 +106,8 @@ class IndexMethods {
 			const middleIndex = Math.floor((latestIndex + earliestIndex)/2);
 			// If not (date <= list.entries[i]), we can discard entries [0-i? i-end?]
 			if (
-				inclusive ? date > list.entries[middleIndex].timestamp
-				: date >= list.entries[middleIndex].timestamp
+				exclusive ? date >= list.entries[middleIndex].timestamp
+				: date > list.entries[middleIndex].timestamp
 			) {
 				earliestIndex = middleIndex - 1;
 				continue;
@@ -130,27 +130,27 @@ class IndexMethods {
 
 export class ModeRangeSelector {
 	rangeSelector: Selector<
-		(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean) => [number, number][],
+		(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean) => [number, number][],
 		HTMLSelectElement
 	>;
 	inclusivitySelector: HTMLInputElement;
 
 	constructor(rangesElementID: string, inclusivityElementID: string) {
 		this.rangeSelector = new Selector<
-			(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean) => [number, number][],
+			(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean) => [number, number][],
 			HTMLSelectElement
 		>(rangesElementID).addAll(DEFAULT_RANGES);
 		if (this.rangeSelector.contains("Before/During Start Date")) {
 			this.rangeSelector.element.value = "Before/During Start Date";
 		}
 		this.inclusivitySelector = ElementUtils.getElementOrThrow<HTMLInputElement>(inclusivityElementID);
-		this.inclusivitySelector.checked = true;
+		this.inclusivitySelector.checked = false;
 	}
 
 	evaluate(list: TimeseriesList, dates: {lower: Date, upper: Date}): [number, number][] {
 		const currentFunction = this.rangeSelector.get().value;
-		const inclusive = this.inclusivitySelector.checked;
-		if (!currentFunction || inclusive == null) return [];
-		return currentFunction(list, dates, inclusive);
+		const exclusive = this.inclusivitySelector.checked;
+		if (!currentFunction || exclusive == null) return [];
+		return currentFunction(list, dates, exclusive);
 	}
 }

@@ -1,9 +1,9 @@
 import "./assets/style.css";
 import {DatetimeWithMemory} from "./components/datememory.js";
-import {DateUtils, ElementUtils, NetworkUtils, StringUtils} from "./util.js"
-import {type TimeseriesList, TimeseriesListMethods, timeseriesListSchema} from "./lists.js";
 import {ModeOrderSelector} from "./components/mode-order-selector.js";
 import {ModeRangeSelector} from "./components/mode-range-selector.js";
+import {DateUtils, ElementUtils, NetworkUtils, StringUtils} from "./util.js"
+import {type TimeseriesList, TimeseriesListMethods, timeseriesListSchema} from "./lists.js";
 
 // TODO: This would work better as an ordered set than as an array.
 const customUrls: string[] = []
@@ -11,11 +11,11 @@ let customFileUploadsCount: number = 0;
 
 const modeOrder = new ModeOrderSelector(
 	"#mode-form-order",
-	"#mode-form-type"
+	"#mode-form-split-by-metadata"
 );
 const modeRange = new ModeRangeSelector(
 	"#mode-form-range",
-	"#mode-form-inclusivity"
+	"#date-exclusive-bound-form"
 );
 
 const startDatetimeWithMemory = new DatetimeWithMemory(
@@ -33,6 +33,15 @@ async function initialize(): Promise<void> {
 	await caches.delete("chronological-calculator-list-cache");
 
 	// Add event listeners.
+	const modeOrderForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#mode-form-order");
+	modeOrderForm.addEventListener("input", async function(){await recalculate();});
+
+	const modeRangeForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#mode-form-range");
+	modeRangeForm.addEventListener("input", async function(){await recalculate();});
+
+	const modeSplitByMetadataForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#mode-form-split-by-metadata");
+	modeSplitByMetadataForm.addEventListener("input", async function(){await recalculate();});
+
 	const listForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#list-form");
 	listForm.addEventListener("input", async function(){await respondToNewList();});
 
@@ -53,6 +62,9 @@ async function initialize(): Promise<void> {
 
 	const endUTCOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-end-form");
 	endUTCOffsetForm.addEventListener("input", async function(){await recalculate();});
+
+	const dateExclusiveBoundForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#date-exclusive-bound-form");
+	dateExclusiveBoundForm.addEventListener("input", async function(){await recalculate();});
 }
 
 // Function to run whenever the selected list changes.

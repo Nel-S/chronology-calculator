@@ -34,17 +34,15 @@
 			<li class="narrow-rounded-box input-entry-decoration stack-vertically">
 				<label class="label" for="mode-form">Mode:</label>
 				<div class="mode-form">
-					<div class="stack-horizontally spaced">
+					<div class="stack-horizontally-wrap spaced">
 						<select id="mode-form-order"></select>
-						<p> Entry </p>
 						<select id="mode-form-range"></select>
 					</div>
 					<div class="stack-horizontally spaced">
-						<input type="checkbox" id="mode-form-type"></input>
-						<label for="mode-form-type" class="smaller-label">Split by metadata</label>
-						<!-- TODO: Replace with "Exclude exact dates/times" checkbox -->
-						<input type="checkbox" id="mode-form-inclusivity"></input>
-						<label for="mode-form-inclusivity" class="smaller-label">Include exact date/time</label>
+						<div>
+							<input type="checkbox" id="mode-form-split-by-metadata"></input>
+							<label for="mode-form-split-by-metadata" class="smaller-label">Split by metadata</label>
+						</div>
 					</div>
 				</div>
 			</li>
@@ -101,6 +99,10 @@
 							<!-- Automatically populated when datetimeWithMemory is constructed -->
 						</select>
 					</div>
+				</div>
+				<div class="stack-horizontally spaced">
+					<input type="checkbox" id="date-exclusive-bound-form"></input>
+					<label for="date-exclusive-bound-form" class="smaller-label">Exclusive bound</label>
 				</div>
 			</li>
 		</ul>

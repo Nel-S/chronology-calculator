@@ -4,7 +4,7 @@ import {Selector} from "./selector.js";
 
 const DEFAULT_ORDERS = new Map([
 	[
-		"First", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+		"Find First Entry", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
 			return metadata ?
 				indices.map(
 					(indexPair) => EntryMethods.firstMetadata(list, indexPair)
@@ -15,7 +15,7 @@ const DEFAULT_ORDERS = new Map([
 		}
 	],
 	[
-		"Last", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+		"Find Last Entry", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
 			return metadata ?
 				indices.map(
 					(indexPair) => EntryMethods.lastMetadata(list, indexPair)
@@ -26,7 +26,7 @@ const DEFAULT_ORDERS = new Map([
 		}
 	],
 	[
-		"Median", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+		"Find Median Entries", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
 			return metadata ?
 				indices.map(
 					(indexPair) => EntryMethods.medianMetadata(list, indexPair)
@@ -43,7 +43,7 @@ const DEFAULT_ORDERS = new Map([
 		}
 	],
 	[
-		"Random", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+		"Find Random Entry", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
 			return metadata ?
 				indices.map(
 					(indexPair) => EntryMethods.randomMetadata(list, indexPair)
@@ -56,7 +56,7 @@ const DEFAULT_ORDERS = new Map([
 		}
 	],
 	[
-		"All", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
+		"Find All Entries", function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | (Entry | null)[] {
 			if (metadata) throw new Error("'All' is not currently supported with split metadata.");
 			return indices.flatMap(
 				(indexPair) => list.entries.slice(indexPair[0], indexPair[1]+1)
@@ -190,8 +190,8 @@ export class ModeOrderSelector {
 			(list: TimeseriesList, indices: [number, number][], metadata: boolean) => (Entry | null)[][]  | (Entry | null)[],
 			HTMLSelectElement
 		>(ordersElementID).addAll(DEFAULT_ORDERS);
-		if (this.orderSelector.contains("Last")) {
-			this.orderSelector.element.value = "Last";
+		if (this.orderSelector.contains("Find Last Entry")) {
+			this.orderSelector.element.value = "Find Last Entry";
 		}
 		this.typeSelector = ElementUtils.getElementOrThrow<HTMLInputElement>(typeElementID);
 		this.typeSelector.checked = true;
