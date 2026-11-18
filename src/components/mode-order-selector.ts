@@ -1,4 +1,5 @@
 import {type Entry, type TimeseriesList} from "../lists.js";
+import {ElementUtils} from "../util.js";
 import {Selector} from "./selector.js";
 
 const DEFAULT_ORDERS = new Map([
@@ -61,17 +62,6 @@ const DEFAULT_ORDERS = new Map([
 				(indexPair) => list.entries.slice(indexPair[0], indexPair[1]+1)
 			);
 		}
-	]
-]);
-
-const DEFAULT_TYPES = new Map([
-	[
-		"Of Each Metadata",
-		true
-	],
-	[
-		"Unaltered Entry",
-		false
 	]
 ]);
 
@@ -193,11 +183,8 @@ export class ModeOrderSelector {
 		(list: TimeseriesList, indices: [number, number][], metadata: boolean) => (Entry | null)[][] | (Entry | null)[],
 		HTMLSelectElement
 	>;
-	// TODO: Replace with checkbox
-	typeSelector: Selector<
-		boolean,
-		HTMLSelectElement
-	>
+	typeSelector: HTMLInputElement
+
 	constructor(ordersElementID: string, typeElementID: string) {
 		this.orderSelector = new Selector<
 			(list: TimeseriesList, indices: [number, number][], metadata: boolean) => (Entry | null)[][]  | (Entry | null)[],
@@ -206,17 +193,13 @@ export class ModeOrderSelector {
 		if (this.orderSelector.contains("Last")) {
 			this.orderSelector.element.value = "Last";
 		}
-		this.typeSelector = new Selector<
-			boolean, HTMLSelectElement
-		>(typeElementID).addAll(DEFAULT_TYPES);
-		if (this.typeSelector.contains("Of Each Metadata")) {
-			this.typeSelector.element.value = "Of Each Metadata";
-		}
+		this.typeSelector = ElementUtils.getElementOrThrow<HTMLInputElement>(typeElementID);
+		this.typeSelector.checked = true;
 	}
 
 	evaluate(list: TimeseriesList, indices: [number, number][]): (Entry | null)[][] | (Entry | null)[] {
 		const currentFunction = this.orderSelector.get().value;
-		const type = this.typeSelector.get().value;
+		const type = this.typeSelector.checked;
 		if (!currentFunction || type == null) return [];
 		return currentFunction(list, indices, type);
 	}

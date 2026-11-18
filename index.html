@@ -36,11 +36,15 @@
 				<div class="mode-form">
 					<div class="stack-horizontally spaced">
 						<select id="mode-form-order"></select>
-						<select id="mode-form-type"></select>
+						<p> Entry </p>
+						<select id="mode-form-range"></select>
 					</div>
 					<div class="stack-horizontally spaced">
-						<select id="mode-form-range"></select>
-						<select id="mode-form-inclusivity"></select>
+						<input type="checkbox" id="mode-form-type"></input>
+						<label for="mode-form-type" class="smaller-label">Split by metadata</label>
+						<!-- TODO: Replace with "Exclude exact dates/times" checkbox -->
+						<input type="checkbox" id="mode-form-inclusivity"></input>
+						<label for="mode-form-inclusivity" class="smaller-label">Include exact date/time</label>
 					</div>
 				</div>
 			</li>

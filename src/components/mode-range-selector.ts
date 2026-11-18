@@ -1,4 +1,5 @@
 import {type TimeseriesList} from "../lists.js";
+import {ElementUtils} from "../util.js";
 import {Selector} from "./selector.js";
 
 const DEFAULT_RANGES = new Map([
@@ -46,17 +47,6 @@ const DEFAULT_RANGES = new Map([
 			return [[0, afterMinIndex], [beforeMaxIndex, list.entries.length - 1]];
 		}
 	],
-]);
-
-const DEFAULT_INCLUSIVITY_VALUES = new Map([
-	[
-		"Inclusive",
-		true
-	],
-	[
-		"Exclusive",
-		false
-	]
 ]);
 
 class IndexMethods {
@@ -143,11 +133,7 @@ export class ModeRangeSelector {
 		(list: TimeseriesList, dates: {lower: Date, upper: Date}, inclusive: boolean) => [number, number][],
 		HTMLSelectElement
 	>;
-	// TODO: Replace with checkbox
-	inclusivitySelector: Selector<
-		boolean,
-		HTMLSelectElement
-	>;
+	inclusivitySelector: HTMLInputElement;
 
 	constructor(rangesElementID: string, inclusivityElementID: string) {
 		this.rangeSelector = new Selector<
@@ -157,17 +143,13 @@ export class ModeRangeSelector {
 		if (this.rangeSelector.contains("Before/During Start Date")) {
 			this.rangeSelector.element.value = "Before/During Start Date";
 		}
-		this.inclusivitySelector = new Selector<
-			boolean, HTMLSelectElement
-		>(inclusivityElementID).addAll(DEFAULT_INCLUSIVITY_VALUES);
-		if (this.inclusivitySelector.contains("Inclusive")) {
-			this.inclusivitySelector.element.value = "Inclusive";
-		}
+		this.inclusivitySelector = ElementUtils.getElementOrThrow<HTMLInputElement>(inclusivityElementID);
+		this.inclusivitySelector.checked = true;
 	}
 
 	evaluate(list: TimeseriesList, dates: {lower: Date, upper: Date}): [number, number][] {
 		const currentFunction = this.rangeSelector.get().value;
-		const inclusive = this.inclusivitySelector.get().value;
+		const inclusive = this.inclusivitySelector.checked;
 		if (!currentFunction || inclusive == null) return [];
 		return currentFunction(list, dates, inclusive);
 	}

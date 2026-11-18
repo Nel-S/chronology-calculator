@@ -2,8 +2,8 @@ import "./assets/style.css";
 import {DatetimeWithMemory} from "./components/datememory.js";
 import {DateUtils, ElementUtils, NetworkUtils, StringUtils} from "./util.js"
 import {type TimeseriesList, TimeseriesListMethods, timeseriesListSchema} from "./lists.js";
-import { ModeOrderSelector } from "./components/mode-order-selector.js";
-import { ModeRangeSelector } from "./components/mode-range-selector.js";
+import {ModeOrderSelector} from "./components/mode-order-selector.js";
+import {ModeRangeSelector} from "./components/mode-range-selector.js";
 
 // TODO: This would work better as an ordered set than as an array.
 const customUrls: string[] = []
