@@ -10,6 +10,12 @@ const urlSchema = z.url({
   error: "Provided URL is invalid or non-HTTP/HTTPS."
 });
 
+const fileSchema = z.url({
+  protocol: /^blob$/,
+  normalize: true,
+  error: "Provided file URI is invalid."
+});
+
 const checkedDatetimeSchema = z.pipe(
 	z.string("Provided timestamp or datetime is not a valid string."),
 	z.transform((str, ctx) => {
@@ -28,6 +34,17 @@ const checkedDatetimeSchema = z.pipe(
 		}
 	})
 )
+
+export const externalSchema = z.object({
+	source: z.xor([urlSchema, fileSchema]),
+	mapper: z._default(z.optional(
+		z.catchall(
+			z.object(),
+			z.string()
+		)
+	), {})
+});
+export type ExternalList = z.infer<typeof externalSchema>;
 
 // TODO: None of these can be converted to strictObjects without errors complaining about an unrecognized key "default". This is likely due to TypeScript's compiling. Is there any workaround?
 const linkableSchema = z.object({
@@ -49,8 +66,15 @@ const entrySchema = z.catchall(
 		sources: z._default(z.optional(
 			z.array(urlSchema)
 		), []),
+		// metadata: z._default(z.optional(
+		// 	z.catchall(
+		// 		z.object(),
+		// 		z.string()
+		// 	)
+		// ), {})
 	}),
 	// All other keys are considered metadata, and must be Boolean
+	/** @deprecated */
 	z.boolean()
 );
 export type Entry = z.infer<typeof entrySchema>;

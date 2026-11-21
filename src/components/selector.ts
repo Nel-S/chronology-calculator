@@ -4,10 +4,13 @@ export class Selector<T, E extends HTMLElement> {
 	element: E;
 	mapper: Map<string, T>;
 
-	constructor(elementID: string) {
+	constructor(elementID: string, mapper: Map<string, T> | null = null) {
 		this.element = ElementUtils.getElementOrThrow<E>(elementID);
 		this.mapper = new Map();
 		this.reset();
+		if (mapper) {
+			for (const [key, value] of mapper) this.add(key, value);
+		}
 	}
 
 	reset(): Selector<T, E> {
@@ -24,9 +27,9 @@ export class Selector<T, E extends HTMLElement> {
 		return this.mapper.has(label);
 	}
 
-	list(): string[] {
-		return Array.from(this.mapper.keys());
-	}
+	// list(): string[] {
+	// 	return Array.from(this.mapper.keys());
+	// }
 
 	get(): {label: string | null, value: T | null} {
 		let label: string | null;
@@ -59,39 +62,39 @@ export class Selector<T, E extends HTMLElement> {
 		return this;
 	}
 
-	addAll(
-		values: Iterable<[string, T]>
-	): Selector<T, E> {
-		for (const [label, value] of values) this.add(label, value);
-		return this;
-	}
+	// addAll(
+	// 	values: Iterable<[string, T]>
+	// ): Selector<T, E> {
+	// 	for (const [label, value] of values) this.add(label, value);
+	// 	return this;
+	// }
 
-	remove(label: string): Selector<T, E> {
-		this.mapper.delete(label);
-		if (this.element instanceof HTMLSelectElement) {
-			for (let i = this.element.options.length - 1; i; --i) {
-				if (this.element[i].label === label) this.element.remove(i);
-			}
-		}
-		return this;
-	}
+	// remove(label: string): Selector<T, E> {
+	// 	this.mapper.delete(label);
+	// 	if (this.element instanceof HTMLSelectElement) {
+	// 		for (let i = this.element.options.length - 1; i; --i) {
+	// 			if (this.element[i].label === label) this.element.remove(i);
+	// 		}
+	// 	}
+	// 	return this;
+	// }
 
-	removeAll(
-		labels: Iterable<string>
-	): Selector<T, E> {
-		for (const label of labels) this.remove(label);
-		return this;
-	}
+	// removeAll(
+	// 	labels: Iterable<string>
+	// ): Selector<T, E> {
+	// 	for (const label of labels) this.remove(label);
+	// 	return this;
+	// }
 
-	hide(): Selector<T, E> {
-		this.element.classList.add("translucent");
-		this.element.inert = true;
-		return this;
-	}
+	// hide(): Selector<T, E> {
+	// 	this.element.classList.add("translucent");
+	// 	this.element.inert = true;
+	// 	return this;
+	// }
 
-	show(): Selector<T, E> {
-		this.element.classList.remove("translucent");
-		this.element.inert = false;
-		return this;
-	}
+	// show(): Selector<T, E> {
+	// 	this.element.classList.remove("translucent");
+	// 	this.element.inert = false;
+	// 	return this;
+	// }
 }

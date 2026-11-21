@@ -189,7 +189,7 @@ export class ModeOrderSelector {
 		this.orderSelector = new Selector<
 			(list: TimeseriesList, indices: [number, number][], metadata: boolean) => (Entry | null)[][]  | (Entry | null)[],
 			HTMLSelectElement
-		>(ordersElementID).addAll(DEFAULT_ORDERS);
+		>(ordersElementID, DEFAULT_ORDERS);
 		if (this.orderSelector.contains("Find Last Entry")) {
 			this.orderSelector.element.value = "Find Last Entry";
 		}

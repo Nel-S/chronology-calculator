@@ -141,6 +141,10 @@ export class NetworkUtils {
 	}
 
 	static async queryUploadedFile(fileList: FileList | null, cacheName: string | null = null, fileHash: string | null = null): Promise<Response | null> {
+		// Cache keys must be valid HTTP or HTTPS URLs.
+		if (fileHash !== null && (!URL.parse(fileHash) || !fileHash.match(/^https?/))) {
+			fileHash = "/" + NetworkUtils.encodeURIComponentIfNotAlready(fileHash);
+		}
 		// Not providing a filelist only works if a cachename + file hash were provided, and a cache hit occurs
 		if (!fileList || !fileList.length) {
 			if (cacheName && fileHash) {
@@ -174,7 +178,9 @@ export class NetworkUtils {
 		// Store in cache, if applicable, and return
 		if (cacheName && fileHash) {
 			const cache = await caches.open(cacheName);
-			await cache.put(fileHash, fetchResponse.clone());
+			try {
+				await cache.put(fileHash, fetchResponse.clone());
+			} catch {}
 		}
 		return fetchResponse;
 	}
