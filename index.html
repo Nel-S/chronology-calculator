@@ -35,8 +35,12 @@
 				<label class="label" for="mode-form">Mode:</label>
 				<div class="mode-form">
 					<div class="stack-horizontally-wrap spaced">
-						<select id="mode-form-order"></select>
-						<select id="mode-form-range"></select>
+						<select id="mode-form-order">
+							<!-- Automatically populated when modeOrder is constructed -->
+						</select>
+						<select id="mode-form-range">
+							<!-- Automatically populated when modeRange is constructed -->
+						</select>
 					</div>
 					<div class="stack-horizontally spaced">
 						<div>
@@ -49,25 +53,7 @@
 			<li class="narrow-rounded-box input-entry-decoration stack-vertically">
 				<label class="label" for="list-form">List:</label>
 				<select id="list-form">
-					<option selected disabled hidden>[No list selected.]</option>
-					<optgroup label="Schema Examples">
-						<option>Minimal Example</option>
-						<option>Comprehensive Example</option>
-					</optgroup>
-					<optgroup label="Minecraft Releases">
-						<option>Java Edition</option>
-						<option>Nintendo Switch Edition</option>
-						<option>PlayStation 3 Edition</option>
-						<option>PlayStation 4 Edition</option>
-						<option>PlayStation Vita Edition</option>
-						<option>Wii U Edition</option>
-						<option>Xbox 360 Edition</option>
-						<option>Xbox One Edition</option>
-					</optgroup>
-					<optgroup label="Custom" id="custom-lists">
-						<option>From URL</option>
-						<option>From File Upload</option>
-					</optgroup>
+					<!-- Automatically populated when listSelector is constructed -->
 				</select>
 				<input type="url" id="list-form-url" placeholder="URL..." class="hidden">
 				<!-- TODO: Figure out how to center -->
@@ -107,7 +93,7 @@
 			</li>
 		</ul>
 
-		<div class="rounded-box output-box-decoration stack-vertically spaced" id="output-container">
+		<div class="rounded-box output-box-decoration stack-vertically spaced-no-center" id="output-container">
 			<div class="list-name">
 				[Waiting for list selection.]
 			</div>

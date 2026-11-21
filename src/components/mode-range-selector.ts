@@ -140,8 +140,8 @@ export class ModeRangeSelector {
 			(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean) => [number, number][],
 			HTMLSelectElement
 		>(rangesElementID, DEFAULT_RANGES);
-		if (this.rangeSelector.contains("Before/During Start Date")) {
-			this.rangeSelector.element.value = "Before/During Start Date";
+		if (this.rangeSelector.contains("Before/During End Date")) {
+			this.rangeSelector.element.value = "Before/During End Date";
 		}
 		this.inclusivitySelector = ElementUtils.getElementOrThrow<HTMLInputElement>(inclusivityElementID);
 		this.inclusivitySelector.checked = false;

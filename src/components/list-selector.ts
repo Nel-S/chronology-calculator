@@ -34,6 +34,62 @@ const DEFAULT_LIST_REFERENCES = new Map([
 			}),
 		]
 	],
+	[
+		"Nintendo Switch Edition",
+		[
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Nintendo%20Switch%20Edition.json"
+			})
+		]
+	],
+	[
+		"PlayStation 3 Edition",
+		[
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%203%20Edition.json"
+			})
+		]
+	],
+	[
+		"PlayStation 4 Edition",
+		[
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%204%20Edition.json"
+			})
+		]
+	],
+	[
+		"PlayStation Vita Edition",
+		[
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%20Vita%20Edition.json"
+			})
+		]
+	],
+	[
+		"Wii U Edition",
+		[
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Wii%20U%20Edition.json"
+			})
+		]
+	],
+	[
+		"Xbox 360 Edition",
+		[
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20360%20Edition.json"
+			})
+		]
+	],
+	[
+		"Xbox One Edition",
+		[
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20One%20Edition.json"
+			})
+		]
+	],
 ]);
 
 export class ListSelector {
@@ -101,6 +157,7 @@ export class ListSelector {
 			for (const [key, value] of this.listSelector.mapper) {
 				if (value.length != 1 || value[0].source != lookupKey) continue;
 				this.listSelector.element.value = key;
+				this.listSelector.element.dispatchEvent(new Event("input"));
 				return true;
 			}
 		}
@@ -123,6 +180,7 @@ export class ListSelector {
 			`Custom URL #${++this.uploadedURLsCount}`;
 		this.listSelector.add(newLabel, [reference]);
 		this.listSelector.element.value = newLabel;
+		this.listSelector.element.dispatchEvent(new Event("input"));
 		return true;
 	}
 

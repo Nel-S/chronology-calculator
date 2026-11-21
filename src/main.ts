@@ -14,18 +14,15 @@ const modeRange = new ModeRangeSelector(
 	"#mode-form-range",
 	"#date-exclusive-bound-form"
 );
-
 const listSelector = new ListSelector(
 	"#list-form",
 	"#list-form-url",
 	"#list-form-file-upload"
 );
-
 const startDatetimeWithMemory = new DatetimeWithMemory(
 	"#datetime-start-form",
 	"#utc-offset-start-form"
 );
-
 const endDatetimeWithMemory = new DatetimeWithMemory(
 	"#datetime-end-form",
 	"#utc-offset-end-form"
@@ -36,38 +33,19 @@ async function initialize(): Promise<void> {
 	await caches.delete("chronological-calculator-list-cache");
 
 	// Add event listeners.
-	const modeOrderForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#mode-form-order");
-	modeOrderForm.addEventListener("input", async function(){await recalculate();});
+	modeOrder.orderSelector.element.addEventListener("input", async function(){await recalculate();});
+	modeOrder.typeSelector.addEventListener("input", async function(){await recalculate();});
+	modeRange.rangeSelector.element.addEventListener("input", async function(){await recalculate();});
+	modeRange.inclusivitySelector.addEventListener("input", async function(){await recalculate();});
 
-	const modeRangeForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#mode-form-range");
-	modeRangeForm.addEventListener("input", async function(){await recalculate();});
+	listSelector.listSelector.element.addEventListener("input", async function(){await respondToNewList();});
+	listSelector.urlForm.addEventListener("change", async function(){blankOutputs("[Processing...]"); await updatePageForList();});
+	listSelector.fileForm.addEventListener("change", async function(){blankOutputs("[Processing...]");await updatePageForList();});
 
-	const modeSplitByMetadataForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#mode-form-split-by-metadata");
-	modeSplitByMetadataForm.addEventListener("input", async function(){await recalculate();});
-
-	const listForm = ElementUtils.getElementOrThrow<HTMLSelectElement>("#list-form");
-	listForm.addEventListener("input", async function(){await respondToNewList();});
-
-	const listURLForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-url");
-	listURLForm.addEventListener("change", async function(){blankOutputs("[Processing...]"); await updatePageForList();});
-
-	const listFileUploadForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-file-upload");
-	listFileUploadForm.addEventListener("change", async function(){blankOutputs("[Processing...]");await updatePageForList();});
-
-	const startDateForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#datetime-start-form");
-	startDateForm.addEventListener("input", async function(){await recalculate();});
-
-	const startUTCOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-start-form");
-	startUTCOffsetForm.addEventListener("input", async function(){await recalculate();});
-
-	const endDateForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#datetime-end-form");
-	endDateForm.addEventListener("input", async function(){await recalculate();});
-
-	const endUTCOffsetForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#utc-offset-end-form");
-	endUTCOffsetForm.addEventListener("input", async function(){await recalculate();});
-
-	const dateExclusiveBoundForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#date-exclusive-bound-form");
-	dateExclusiveBoundForm.addEventListener("input", async function(){await recalculate();});
+	startDatetimeWithMemory.dateElement.addEventListener("input", async function(){await recalculate();});
+	startDatetimeWithMemory.utcOffsetElement.addEventListener("input", async function(){await recalculate();});
+	endDatetimeWithMemory.dateElement.addEventListener("input", async function(){await recalculate();});
+	endDatetimeWithMemory.utcOffsetElement.addEventListener("input", async function(){await recalculate();});
 }
 
 // Function to run whenever the selected list changes.
@@ -80,16 +58,19 @@ async function respondToNewList(): Promise<void> {
 }
 
 function maybeResetForCustomUpload(): boolean {
-	const urlUnhidden = updateURLVisibility();
-	const fileUploadUnhidden = updateFileUploadVisibility();
-	if (!urlUnhidden && !fileUploadUnhidden) {
-		endDatetimeWithMemory.show();
-		return false;
+	switch (listSelector.listSelector.element.value) {
+		case "From URL":
+			blankOutputs("[Waiting for URL...]");
+			endDatetimeWithMemory.hide();
+			return true;
+		case "From File Upload":
+			blankOutputs("[Waiting for file upload...]");
+			endDatetimeWithMemory.hide();
+			return true;
+		default:
+			endDatetimeWithMemory.show();
+			return false;
 	}
-	
-	blankOutputs(`[Waiting${urlUnhidden ? " for URL" : fileUploadUnhidden ? " for file upload" : ""}...]`);
-	endDatetimeWithMemory.hide();
-	return true;
 }
 
 function blankOutputs(message: string = "") {
@@ -126,31 +107,6 @@ function updateDatetimeResolution(list: TimeseriesList): boolean {
 	}
 	startDatetimeWithMemory.toLowResolution();
 	endDatetimeWithMemory.toLowResolution();
-	return false;
-}
-
-function updateURLVisibility(): boolean {
-	const listForm = ElementUtils.getElementOrNull<HTMLSelectElement>("#list-form");
-	const listURLForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-url");
-
-	if (listForm && listForm.value === "From URL") {
-		listURLForm.classList.remove("hidden");
-		return true;
-	}
-	listURLForm.classList.add("hidden");
-	listURLForm.value = "";
-	return false;
-}
-
-function updateFileUploadVisibility(): boolean {
-	const listForm = ElementUtils.getElementOrNull<HTMLSelectElement>("#list-form");
-	const listFileUploadForm = ElementUtils.getElementOrThrow<HTMLInputElement>("#list-form-file-upload");
-
-	if (listForm && listForm.value === "From File Upload") {
-		listFileUploadForm.classList.remove("hidden");
-		return true;
-	}
-	listFileUploadForm.classList.add("hidden");
 	return false;
 }
 
@@ -202,7 +158,7 @@ async function recalculate(list: TimeseriesList | null = null): Promise<void> {
 		// console.log(entryOrList, entryOrList.length);
 		if (!entryOrList) continue;
 		if (entryOrList instanceof Array) {
-			outputContainer.innerHTML += `<div class="stack-horizontally-wrap spaced">`;
+			let entryHTML = `<div class="stack-horizontally-wrap spaced">`;
 			for (let i = 0; i < list.metadata.length + 1; ++i) {
 				const currentEntry = entryOrList[i];
 				// console.log("Current entry:");
@@ -224,15 +180,16 @@ async function recalculate(list: TimeseriesList | null = null): Promise<void> {
 					timeText = `~ ${list.highResolution ? DateUtils.extractDateAndTime(currentEntry.timestamp, true) + " UTC" : DateUtils.extractDate(currentEntry.timestamp)}`;
 				}
 
-				outputContainer.innerHTML += `
-		<div class="should-fade-in">
+				entryHTML += `
+		<div class="stack-vertically should-fade-in">
 			<p class="label">${StringUtils.capitalize(!i ? list.defaultLabel : list.metadata[i-1])}:</p>
 			<p class="list-name">${nameText}</p>
 			<p class="subtext">${timeText}</p>
 		</div>`
 			}
-			outputContainer.innerHTML += `</div>`;
-			console.group(outputContainer.innerHTML);
+			entryHTML += `</div>`;
+			outputContainer.innerHTML += entryHTML;
+			// console.log(outputContainer.innerHTML);
 		} else {
 			let nameText = TimeseriesListMethods.printLinkable(entryOrList);
 			for (let j = 0; j < entryOrList.sources.length; ++j) {

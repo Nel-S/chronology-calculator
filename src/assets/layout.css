@@ -29,6 +29,10 @@
 		align-items: center;
 	}
 
+	.spaced-no-center {
+		justify-content: space-evenly;
+	}
+
 	.small-margin {
 		margin: 0.2rem;
 	}
