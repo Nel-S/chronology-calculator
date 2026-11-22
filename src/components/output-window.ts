@@ -4,10 +4,12 @@ import {DateUtils, ElementUtils, StringUtils} from "../util";
 export class OutputWindow {
 	window: HTMLDivElement;
 	lastUpdatedText: HTMLParagraphElement;
+	citationCache: Record<string, number>;
 
 	constructor(windowID: string, lastUpdatedID: string) {
 		this.window = ElementUtils.getElementOrThrow<HTMLDivElement>(windowID);
 		this.lastUpdatedText = ElementUtils.getElementOrThrow<HTMLParagraphElement>(lastUpdatedID);
+		this.citationCache = {};
 	}
 
 	blank(mode: "window" | "lastUpdated" | "both" = "both"): void {
@@ -30,6 +32,7 @@ export class OutputWindow {
 		
 		if (!append) {
 			this.lastUpdatedText.innerText = "";
+			this.citationCache = {};
 		}
 	}
 
@@ -38,53 +41,57 @@ export class OutputWindow {
 		return `<a href="${linkable.url}" title="${linkable.url}">${linkable.name ? linkable.name : linkable.url}</a>`;
 	}
 
-	static #toCitations(sources: string[]): string {
+	#toCitations(sources: string[]): string {
 		let citations = "";
-		for (let j = 0; j < sources.length; ++j) {
+		for (const source of sources) {
+			let cachedCitation = this.citationCache[source];
+			if (cachedCitation === undefined) {
+				cachedCitation = Object.keys(this.citationCache).length + 1
+				this.citationCache[source] = cachedCitation;
+			}
 			citations += `<sup>${OutputWindow.#printLinkable({
-				name: `[${j + 1}]`,
-				url: sources[j]
+				name: `[${cachedCitation}]`,
+				url: source
 			})}</sup>`;
 		}
 		return citations;
 	}
 
-	printEntries(originalList: TimeseriesList, entriesOrMetadata: (Entry | null)[][] | (Entry | null)[]): void {
+	printEntries(originalList: TimeseriesList, entriesOrMetadataLists: (Entry | null)[][] | Entry[]): void {
+		// Blank the window WITHOUT clearing the last updated text.
 		this.blank("window");
-		for (const entryOrList of entriesOrMetadata) {
-			// console.log("Current entry list:");
-			// console.log(entryOrList, entryOrList.length);
-			if (!entryOrList) continue;
-			if (entryOrList instanceof Array) {
-				let entryHTML = `<div class="stack-horizontally-wrap spaced">`;;
-				for (let i = 0; i < entryOrList.length; ++i) {
-					const currentEntry = entryOrList[i];
-					// console.log("Current entry:");
-					// console.log(currentEntry);
+		for (const entryOrMetadataList of entriesOrMetadataLists) {
+			if (entryOrMetadataList instanceof Array) {
+				let entryHTML = `<div class="stack-horizontally-wrap spaced">`;
+				for (let i = 0; i < entryOrMetadataList.length; ++i) {
+					const currentMetadata = entryOrMetadataList[i];
+
+					const label = StringUtils.capitalize(
+						!i ? originalList.defaultLabel : originalList.metadata[i-1]
+					);
 					let nameText: string;
-					let timeText: string;
-	
-					if (!currentEntry) {
+					let subtext: string;
+					if (!currentMetadata) {
 						nameText = "[None existed]";
-						timeText = "";
+						subtext = "";
 					} else {
-						nameText = OutputWindow.#printLinkable(currentEntry) + OutputWindow.#toCitations(currentEntry.sources);
-						timeText = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(currentEntry.timestamp, true) + " UTC" : DateUtils.extractDate(currentEntry.timestamp)}`;
+						nameText = OutputWindow.#printLinkable(currentMetadata) + this.#toCitations(currentMetadata.sources);
+						subtext = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(currentMetadata.timestamp, true) + " UTC" : DateUtils.extractDate(currentMetadata.timestamp)}`;
 					}
 	
 					entryHTML += `
-			<div class="stack-vertically should-fade-in">
-				<p class="label">${StringUtils.capitalize(!i ? originalList.defaultLabel : originalList.metadata[i-1])}:</p>
-				<p class="list-name">${nameText}</p>
-				<p class="subtext">${timeText}</p>
-			</div>`
+						<div class="stack-vertically should-fade-in">
+							<p class="label">${label}:</p>
+							<p class="list-name">${nameText}</p>
+							<p class="subtext">${subtext}</p>
+						</div>`
 				}
-				entryHTML += `</div>`;
+				entryHTML += "</div>";
 				this.write(entryHTML, true);
 			} else {
-				let nameText = OutputWindow.#printLinkable(entryOrList) + OutputWindow.#toCitations(entryOrList.sources);
-				let subtext = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(entryOrList.timestamp, true) + " UTC" : DateUtils.extractDate(entryOrList.timestamp)}`;
-				const currentEntryMetadata = Object.keys(entryOrList).filter(
+				let nameText = OutputWindow.#printLinkable(entryOrMetadataList) + this.#toCitations(entryOrMetadataList.sources);
+				let subtext = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(entryOrMetadataList.timestamp, true) + " UTC" : DateUtils.extractDate(entryOrMetadataList.timestamp)}`;
+				const currentEntryMetadata = Object.keys(entryOrMetadataList).filter(
 					(key) => originalList.metadata.includes(key)
 				);
 				for (const metadata of (currentEntryMetadata.length ? currentEntryMetadata : [originalList.defaultLabel])) {

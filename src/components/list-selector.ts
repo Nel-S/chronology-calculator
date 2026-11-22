@@ -2,123 +2,93 @@ import {externalSchema, timeseriesListSchema, type ExternalList, type Timeseries
 import {ElementUtils, NetworkUtils} from "../util.js";
 import {Selector} from "./selector.js";
 
-const DEFAULT_LIST_REFERENCES = new Map([
-	[
-		"Minimal Example",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Schema%20Examples/Minimal%20Example.json"
-			})
-		]
+const DEFAULT_LIST_REFERENCES: Record<string, ExternalList[]> = {
+	"Minimal Example": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Schema%20Examples/Minimal%20Example.json"
+		})
 	],
-	[
-		"Comprehensive Example",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Schema%20Examples/Comprehensive%20Example.json"
-			})
-		]
+	"Comprehensive Example": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Schema%20Examples/Comprehensive%20Example.json"
+		})
 	],
-	[
-		"Java Edition",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Java%20Edition.json"
-			}),
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/misode/mcmeta/refs/heads/summary/versions/data.json",
-				mapper: {
-					// These keys should be erased
-					"build_time": "",
-					"data_pack_version": "",
-					"data_pack_version_minor": "",
-					"data_version": "",
-					"id": "",
-					"protocol_version": "",
-					"release_target": "",
-					"resource_pack_version": "",
-					"resource_pack_version_minor": "",
-					"sha1": "",
-					"stable": "",
-					// Version names that were reuploads, and so should be renamed
-					// to reduce confusion
-					"name=1.14.2 Pre-Release 4": "1.14.2 Pre-Release 4 (270720)",
-					"name=1.16": "1.16 (231620)",
-					"name=1.16.5 Release Candidate 1": "1.16.5 Release Candidate 1 (1558)",
-					// This key should be renamed
-					"release_time": "timestamp",
-					// Values of "type": "release" should have that key erased
-					"type=release": "",
-					// Values of "type": "snapshot" should be renamed to "type": "public snapshot"
-					"type=snapshot": "public snapshot",
-					// This key should have its values set as keys (to act as metadata), with the
-					// original key being erased
-					"type": "_"
-				}
-			}),
-		]
+	"Java Edition": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Java%20Edition.json"
+		}),
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/misode/mcmeta/refs/heads/summary/versions/data.json",
+			mapper: {
+				// These keys should be erased
+				"build_time": "",
+				"data_pack_version": "",
+				"data_pack_version_minor": "",
+				"data_version": "",
+				"id": "",
+				"protocol_version": "",
+				"release_target": "",
+				"resource_pack_version": "",
+				"resource_pack_version_minor": "",
+				"sha1": "",
+				"stable": "",
+				// Version names that were reuploads, and so should be renamed
+				// to reduce confusion
+				"name=1.14.2 Pre-Release 4": "1.14.2 Pre-Release 4 (270720)",
+				"name=1.16": "1.16 (231620)",
+				"name=1.16.5 Release Candidate 1": "1.16.5 Release Candidate 1 (1558)",
+				// This key should be renamed
+				"release_time": "timestamp",
+				// Values of "type": "release" should have that key erased
+				"type=release": "",
+				// Values of "type": "snapshot" should be renamed to "type": "public snapshot"
+				"type=snapshot": "public snapshot",
+				// This key should have its values set as keys (to act as metadata), with the
+				// original key being erased
+				"type": "_"
+			}
+		}),
 	],
-	[
-		"Nintendo Switch Edition",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Nintendo%20Switch%20Edition.json"
-			})
-		]
+	"Nintendo Switch Edition": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Nintendo%20Switch%20Edition.json"
+		})
 	],
-	[
-		"PlayStation 3 Edition",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%203%20Edition.json"
-			})
-		]
+	"PlayStation 3 Edition": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%203%20Edition.json"
+		})
 	],
-	[
-		"PlayStation 4 Edition",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%204%20Edition.json"
-			})
-		]
+	"PlayStation 4 Edition": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%204%20Edition.json"
+		})
 	],
-	[
-		"PlayStation Vita Edition",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%20Vita%20Edition.json"
-			})
-		]
+	"PlayStation Vita Edition": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%20Vita%20Edition.json"
+		})
 	],
-	[
-		"Wii U Edition",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Wii%20U%20Edition.json"
-			})
-		]
+	"Wii U Edition": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Wii%20U%20Edition.json"
+		})
 	],
-	[
-		"Xbox 360 Edition",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20360%20Edition.json"
-			})
-		]
+	"Xbox 360 Edition": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20360%20Edition.json"
+		})
 	],
-	[
-		"Xbox One Edition",
-		[
-			externalSchema.parse({
-				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20One%20Edition.json"
-			})
-		]
-	],
-]);
+	"Xbox One Edition": [
+		externalSchema.parse({
+			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20One%20Edition.json"
+		})
+	]
+};
 
 export class ListSelector {
 	listSelector: Selector<ExternalList[], HTMLOptionElement>;
-	listCache: Map<string, TimeseriesList>;
+	listCache: Record<string, TimeseriesList>;
 	urlForm: HTMLInputElement;
 	fileForm: HTMLInputElement;
 	uploadedURLsCount: number;
@@ -130,7 +100,7 @@ export class ListSelector {
 		this.listSelector.element.appendChild(new Option("From URL"));
 		this.listSelector.element.appendChild(new Option("From File Upload"));
 
-		this.listCache = new Map();
+		this.listCache = {};
 		this.urlForm = ElementUtils.getElementOrThrow<HTMLInputElement>(urlElementID);
 		this.fileForm = ElementUtils.getElementOrThrow<HTMLInputElement>(fileElementID);
 		this.listSelector.element.addEventListener("input", this.#updateInputVisibility.bind(this));
@@ -170,15 +140,16 @@ export class ListSelector {
 			const fileList = this.fileForm.files;
 			if (!fileList || !fileList.length) return false;
 			lookupKey = URL.createObjectURL(fileList[0]);
-			// TODO: Investigate if readAsDataURL (-> Base64) would allow checking
-			// if uploaded files match existing ones. If so, we should switch to that.
+			/* TODO: Investigate if readAsDataURL (-> Base64) would allow checking
+			   if uploaded files match existing ones. If so, we should switch to that.*/
 			// (new FileReader()).readAsDataURL(this.fileForm.files[0]);
 		}
 		
 		// For uploaded URLs, we can check if the upload duplicates an existing entry.
 		// If so, we can simply switch the selected list to that one and skip the upload.
 		if (!isFileUpload) {
-			for (const [key, value] of this.listSelector.mapper) {
+			for (const key in this.listSelector.mapper) {
+				const value = this.listSelector.mapper[key];
 				if (value.length != 1 || value[0].source != lookupKey) continue;
 				this.listSelector.element.value = key;
 				this.listSelector.element.dispatchEvent(new Event("input"));
@@ -208,9 +179,9 @@ export class ListSelector {
 		return true;
 	}
 
-	// TODO: This currently features an **extreme** amount of repetition, considering
-	// this currently must traverse the entire tree anew for each different key in the
-	// mapper. We should refactor this so we only perform the traversal once.
+	/* TODO: This currently features an **extreme** amount of repetition, considering
+	   this currently must traverse the entire tree anew for each different key in the
+	   mapper. We should refactor this so we only perform the traversal once.*/
 	#renameKeysRecursive(obj: any, keyPath: string[], replacement: string) {
 		// If obj is not an object, or the keyPath has been exhausted, abort
 		if (obj == null || obj == undefined || !keyPath.length) return;
@@ -240,7 +211,7 @@ export class ListSelector {
 				else if (replacement) obj[replacement] = obj[currentKeyPart];
 				// In all cases, delete the existing leftover key.
 				// (This is also the only thing that will trigger if the replacement was blank.)
-				delete obj[currentKeyPart];
+				delete obj[currentKeyPart]; // From https://stackoverflow.com/q/4647817
 				return;
 			}
 			// [Falls out of this eventual block if that failed...]
@@ -268,7 +239,7 @@ export class ListSelector {
 		if (!listSelection.label) return null;
 
 		// If current selected option is cached, use cached value
-		const cachedValue = this.listCache.get(listSelection.label);
+		const cachedValue = this.listCache[listSelection.label];
 		if (cachedValue !== undefined) return cachedValue;
 
 		// Otherwise resolve each external reference in the list
@@ -276,9 +247,9 @@ export class ListSelector {
 		const timeseriesLists: TimeseriesList[] = [];
 		for (const reference of listSelection.value) {
 			// Query URL
-			// TODO: Should we determine whether it is a file vs. URL in a less-hacky way?
-			// (Examples include comparing against the raw schemas, or adding a discriminator
-			// to the schemas.)
+			/* TODO: Should we determine whether it is a file vs. URL in a less-hacky way?
+			   (Examples include comparing against the raw schemas, or adding a discriminator
+			   to the schemas.)*/
 			const response = reference.source.startsWith("blob") ?
 				await NetworkUtils.queryUploadedFile(this.fileForm.files, "chronological-calculator-list-cache", reference.source) :
 				await NetworkUtils.queryURL(reference.source, "chronological-calculator-list-cache");
@@ -345,7 +316,10 @@ export class ListSelector {
 				timeseriesLists[0].metadata.concat(otherList.metadata)
 			)];
 			// Merge default labels...
-			if (timeseriesLists[0].defaultLabel == "entry without metadata" && otherList.defaultLabel != "entry without metadata") {
+			if (
+				timeseriesLists[0].defaultLabel == timeseriesListSchema.def.in.def.shape.defaultLabel.def.defaultValue // This is an abomination...
+				&& otherList.defaultLabel != timeseriesListSchema.def.in.def.shape.defaultLabel.def.defaultValue
+			) {
 				timeseriesLists[0].defaultLabel = otherList.defaultLabel;
 			}
 			// Merge lastModified dates...
@@ -370,7 +344,7 @@ export class ListSelector {
 		const timeseriesList = timeseriesLists[0];
 
 		// Cache and return
-		this.listCache.set(listSelection.label, timeseriesList);
+		this.listCache[listSelection.label] = timeseriesList;
 		return timeseriesList;
 	}
 }

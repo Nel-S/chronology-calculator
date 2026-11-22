@@ -46,7 +46,9 @@ export const externalSchema = z.object({
 });
 export type ExternalList = z.infer<typeof externalSchema>;
 
-// TODO: None of these can be converted to strictObjects without errors complaining about an unrecognized key "default". This is likely due to TypeScript's compiling. Is there any workaround?
+/* TODO: None of these can be converted to strictObjects without errors complaining about
+   an unrecognized key "default". This is likely due to TypeScript's compiling. Is there
+   any workaround?*/
 const linkableSchema = z.object({
 	name: z.string("Provided name for a linkable object is not a valid string."),
 	url: urlSchema
@@ -66,6 +68,8 @@ const entrySchema = z.catchall(
 		sources: z._default(z.optional(
 			z.array(urlSchema)
 		), []),
+		/* TODO: Possibly migrate metadata to dictionary.
+		   However, this would break backwards compatibility. */
 		// metadata: z._default(z.optional(
 		// 	z.record(
 		// 		z.string(),
@@ -85,8 +89,8 @@ export const timeseriesListSchema = z.pipe(
 		entries: z.pipe(
 			z.array(entrySchema),
 			// Entries are sorted by time descending
-			// TODO: Determine whether list is generally ordered ascending or descending,
-			// then break ties for entries with identical ties accordingly
+			/* TODO: Determine whether list is generally ordered ascending or descending,
+			   then break ties for entries with identical ties accordingly */
 			z.transform(
 				(entries) => [...entries].sort(
 					(a, b) => b.timestamp.getTime() - a.timestamp.getTime()

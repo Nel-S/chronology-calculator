@@ -2,19 +2,21 @@ import {ElementUtils} from "../util.js"
 
 export class Selector<T, E extends HTMLElement> {
 	element: E;
-	mapper: Map<string, T>;
+	mapper: Record<string, T>;
 
-	constructor(elementID: string, mapper: Map<string, T> | null = null) {
+	constructor(elementID: string, mapper: Record<string, T> | null = null) {
 		this.element = ElementUtils.getElementOrThrow<E>(elementID);
-		this.mapper = new Map();
+		this.mapper = {};
 		this.reset();
 		if (mapper) {
-			for (const [key, value] of mapper) this.add(key, value);
+			Object.entries(mapper).forEach(
+				([key, value]) => this.add(key, value)
+			);
 		}
 	}
 
 	reset(): Selector<T, E> {
-		this.mapper.clear();
+		this.mapper = {};
 		if (this.element instanceof HTMLSelectElement) {
 			this.element.innerHTML = "<option selected disabled hidden>[Waiting for selection.]</option>";
 		} else if (this.element instanceof HTMLInputElement) {
@@ -24,7 +26,7 @@ export class Selector<T, E extends HTMLElement> {
 	}
 
 	contains(label: string): boolean {
-		return this.mapper.has(label);
+		return Object.keys(this.mapper).includes(label);
 	}
 
 	// list(): string[] {
@@ -43,7 +45,7 @@ export class Selector<T, E extends HTMLElement> {
 		}
 		if (label == null) return {label: null, value: null};
 
-		const value = this.mapper.get(label) ?? null;
+		const value = this.mapper[label] ?? null;
 		return {
 			label: label,
 			value: value
@@ -54,8 +56,8 @@ export class Selector<T, E extends HTMLElement> {
 		label: string,
 		value: T
 	): Selector<T, E> {
-		if (this.mapper.has(label)) throw new Error(`Attempted to add entry with duplicate key "${label}" to Selector object.`);
-		this.mapper.set(label, value);
+		if (this.mapper[label]) throw new Error(`Attempted to add entry with duplicate key "${label}" to Selector object.`);
+		this.mapper[label] = value;
 		if (this.element instanceof HTMLSelectElement) {
 			this.element.add(new Option(label));
 		}

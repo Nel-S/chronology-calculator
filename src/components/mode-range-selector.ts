@@ -2,52 +2,40 @@ import {type TimeseriesList} from "../lists.js";
 import {ElementUtils} from "../util.js";
 import {Selector} from "./selector.js";
 
-const DEFAULT_RANGES = new Map([
-	[
-		"Before/During Start Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.lower, exclusive);
-			if (maxIndex === null) return [];
-			return [[maxIndex, list.entries.length - 1]];
-		}
-	],
-	[
-		"After/During Start Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-			const minIndex = IndexMethods.minIndexAfterDate(list, dates.lower, exclusive);
-			if (minIndex === null) return [];
-			return [[0, minIndex]];
-		}
-	],
-	[
-		"Before/During End Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.upper, exclusive);
-			if (maxIndex === null) return [];
-			return [[maxIndex, list.entries.length - 1]];
-		}
-	],
-	[
-		"After/During End Date", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-			const minIndex = IndexMethods.minIndexAfterDate(list, dates.upper, exclusive);
-			if (minIndex === null) return [];
-			return [[0, minIndex]];
-		}
-	],
-	[
-		"Between/During Dates", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-			const minIndex = IndexMethods.minIndexAfterDate(list, dates.lower, exclusive);
-			const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.upper, exclusive);
-			if (minIndex === null || maxIndex === null) return [];
-			return [[maxIndex, minIndex]];
-		}
-	],
-	[
-		"Not Between/During Dates", function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-			const beforeMaxIndex = IndexMethods.maxIndexBeforeDate(list, dates.lower, exclusive);
-			const afterMinIndex = IndexMethods.minIndexAfterDate(list, dates.upper, exclusive);
-			if (beforeMaxIndex === null || afterMinIndex === null) return [];
-			return [[0, afterMinIndex], [beforeMaxIndex, list.entries.length - 1]];
-		}
-	],
-]);
+const DEFAULT_RANGES: Record<string, (list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean) => [number, number][]> = {
+	"Before/During Start Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+		const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.lower, exclusive);
+		if (maxIndex === null) return [];
+		return [[maxIndex, list.entries.length - 1]];
+	},
+	"After/During Start Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+		const minIndex = IndexMethods.minIndexAfterDate(list, dates.lower, exclusive);
+		if (minIndex === null) return [];
+		return [[0, minIndex]];
+	},
+	"Before/During End Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+		const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.upper, exclusive);
+		if (maxIndex === null) return [];
+		return [[maxIndex, list.entries.length - 1]];
+	},
+	"After/During End Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+		const minIndex = IndexMethods.minIndexAfterDate(list, dates.upper, exclusive);
+		if (minIndex === null) return [];
+		return [[0, minIndex]];
+	},
+	"Between/During Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+		const minIndex = IndexMethods.minIndexAfterDate(list, dates.lower, exclusive);
+		const maxIndex = IndexMethods.maxIndexBeforeDate(list, dates.upper, exclusive);
+		if (minIndex === null || maxIndex === null) return [];
+		return [[maxIndex, minIndex]];
+	},
+	"Not Between/During Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+		const beforeMaxIndex = IndexMethods.maxIndexBeforeDate(list, dates.lower, exclusive);
+		const afterMinIndex = IndexMethods.minIndexAfterDate(list, dates.upper, exclusive);
+		if (beforeMaxIndex === null || afterMinIndex === null) return [];
+		return [[0, afterMinIndex], [beforeMaxIndex, list.entries.length - 1]];
+	}
+};
 
 class IndexMethods {
 	static maxIndexBeforeDate(
