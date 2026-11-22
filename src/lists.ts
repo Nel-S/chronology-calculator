@@ -38,8 +38,8 @@ const checkedDatetimeSchema = z.pipe(
 export const externalSchema = z.object({
 	source: z.xor([urlSchema, fileSchema]),
 	mapper: z._default(z.optional(
-		z.catchall(
-			z.object(),
+		z.record(
+			z.string(),
 			z.string()
 		)
 	), {})
@@ -67,8 +67,8 @@ const entrySchema = z.catchall(
 			z.array(urlSchema)
 		), []),
 		// metadata: z._default(z.optional(
-		// 	z.catchall(
-		// 		z.object(),
+		// 	z.record(
+		// 		z.string(),
 		// 		z.string()
 		// 	)
 		// ), {})
@@ -98,7 +98,11 @@ export const timeseriesListSchema = z.pipe(
 			z.string("Provided name for a source is not a valid string.")
 		), "entry without metadata"),
 		lastModified: z._default(z.optional(z.nullable(
-			checkedDatetimeSchema,
+			z.xor([
+				checkedDatetimeSchema,
+				// z.tuple([checkedDatetimeSchema, checkedDatetimeSchema])
+				z.array(checkedDatetimeSchema)
+			]),
 		)), null)
 	}),
 	// Derived attributes

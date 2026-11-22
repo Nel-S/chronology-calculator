@@ -189,9 +189,7 @@ export class NetworkUtils {
 		return fetchResponse;
 	}
 
-	static async getGithubLastCommit(url: string | URL | null): Promise<string | null> {
-		// Nulls return null
-		if (!url) return null;
+	static async getGithubLastCommit(url: string | URL): Promise<string | null> {
 		// Strings get converted to URLs, or return null if impossible
 		if (!(url instanceof URL)) {
 			try {
