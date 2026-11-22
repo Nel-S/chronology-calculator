@@ -198,7 +198,7 @@ export class ModeOrderSelector {
 	}
 
 	evaluate(list: TimeseriesList, indices: [number, number][]): (Entry | null)[][] | (Entry | null)[] {
-		const currentFunction = this.orderSelector.get().value;
+		const currentFunction = this.orderSelector.selection.value;
 		const type = this.typeSelector.checked;
 		if (!currentFunction || type == null) return [];
 		return currentFunction(list, indices, type);

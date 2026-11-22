@@ -119,7 +119,7 @@ export class ListSelector {
 	}
 
 	#updateInputVisibility(): void {
-		switch (this.listSelector.get().label) {
+		switch (this.listSelector.selection.label) {
 			case "From URL":
 				this.urlForm.classList.remove("hidden");
 				this.fileForm.classList.add("hidden");
@@ -185,7 +185,7 @@ export class ListSelector {
 	}
 
 	async query(): Promise<TimeseriesList | null> {
-		const listSelection = this.listSelector.get();
+		const listSelection = this.listSelector.selection;
 		if (!listSelection.label) return null;
 
 		// If current selected option is cached, use cached value
@@ -203,27 +203,34 @@ export class ListSelector {
 			const response = reference.source.startsWith("blob") ?
 				await NetworkUtils.queryUploadedFile(this.fileForm.files, "chronological-calculator-list-cache", reference.source) :
 				await NetworkUtils.queryURL(reference.source, "chronological-calculator-list-cache");
-			if (!response || !response.ok) return null;
+			if (!response || !response.ok) continue;
+
+			// Extract list data, and add last modified date if present
+			let responseJSON: JSON;
 			try {
-				// Extract list data, and add last modified date if present
-				const responseJSON: JSON = await response.json();
-				if (!Object.keys(responseJSON).includes("lastModified")) {
-					Object.assign(responseJSON, {lastModified: response.headers.get("Last-Modified")});
-				}
-				// TODO: Ultimately enable changing metadata keys...
-				// for (const key in reference.mapper) {
-				// 	const value = reference.mapper[key];
-				// 	if (!Object.keys(responseJSON).includes(key)) continue;
-				// 	Object.defineProperty(responseJSON, value, responseJSON[key]); // <-- not Valid
-				// }
-				return timeseriesListSchema.parse(responseJSON);
+				responseJSON = await response.json();
 			} catch {
-				return null;
+				continue;
+			}
+
+			if (!Object.keys(responseJSON).includes("lastModified")) {
+				Object.assign(responseJSON, {lastModified: response.headers.get("Last-Modified")});
+			}
+			// TODO: Ultimately enable changing metadata keys...
+			// for (const key in reference.mapper) {
+			// 	const value = reference.mapper[key];
+			// 	if (!Object.keys(responseJSON).includes(key)) continue;
+			// 	Object.defineProperty(responseJSON, value, responseJSON[key]); // <-- not Valid
+			// }
+			try {
+				timeseriesLists.push(timeseriesListSchema.parse(responseJSON));
+			} catch {
+				continue;
 			}
 		}
 		// Combine timeseries lists together
 		// TODO: Implement. This is a temporary hack.
-		const timeseriesList = timeseriesLists[0]
+		const timeseriesList = timeseriesLists[0];
 
 		// Cache and return
 		this.listCache.set(listSelection.label, timeseriesList);

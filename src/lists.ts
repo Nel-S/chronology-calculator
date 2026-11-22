@@ -119,11 +119,3 @@ export const timeseriesListSchema = z.pipe(
 	}))
 );
 export type TimeseriesList = z.infer<typeof timeseriesListSchema>;
-
-export class TimeseriesListMethods {
-
-	static printLinkable<T extends Linkable>(linkable: T): string {
-		if (!linkable.url) return linkable.name;
-		return `<a href="${linkable.url}" title="${linkable.url}">${linkable.name ? linkable.name : linkable.url}</a>`;
-	}
-};

@@ -48,6 +48,10 @@ export class DateUtils {
 	static isValid(datetime: Date | null): boolean {
 		return datetime != null && !isNaN(datetime.getTime());
 	}
+	static millisecondsBetween(start: Date, end: Date | null = null) {
+		if (!end) end = new Date();
+		return end.valueOf() - start.valueOf();
+	}
 }
 
 export class ElementUtils {

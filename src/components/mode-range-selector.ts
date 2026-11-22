@@ -148,7 +148,7 @@ export class ModeRangeSelector {
 	}
 
 	evaluate(list: TimeseriesList, dates: {lower: Date, upper: Date}): [number, number][] {
-		const currentFunction = this.rangeSelector.get().value;
+		const currentFunction = this.rangeSelector.selection.value;
 		const exclusive = this.inclusivitySelector.checked;
 		if (!currentFunction || exclusive == null) return [];
 		return currentFunction(list, dates, exclusive);

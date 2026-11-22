@@ -31,7 +31,7 @@ export class Selector<T, E extends HTMLElement> {
 	// 	return Array.from(this.mapper.keys());
 	// }
 
-	get(): {label: string | null, value: T | null} {
+	get selection(): {label: string | null, value: T | null} {
 		let label: string | null;
 		if (this.element instanceof HTMLSelectElement && this.element.selectedOptions.length) {
 			label = this.element.selectedOptions.item(0)?.label ?? null
