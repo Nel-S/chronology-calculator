@@ -10,6 +10,9 @@ export class OutputWindow {
 		this.window = ElementUtils.getElementOrThrow<HTMLDivElement>(windowID);
 		this.lastUpdatedText = ElementUtils.getElementOrThrow<HTMLParagraphElement>(lastUpdatedID);
 		this.citationCache = {};
+
+		window.addEventListener("error", (error) => this.logError(error));
+		window.addEventListener("unhandledrejection", (error) => this.logError(error));
 	}
 
 	blank(mode: "window" | "lastUpdated" | "both" = "both"): void {
@@ -55,6 +58,85 @@ export class OutputWindow {
 			})}</sup>`;
 		}
 		return citations;
+	}
+
+	logError(error: ErrorEvent | PromiseRejectionEvent): void {
+		// Data related to the error object itself
+		const errorData = error instanceof ErrorEvent ? {
+			message: error.message,
+			type: error.type,
+			file: error.filename,
+			lineNumber: error.lineno,
+			columnNumber: error.colno,
+			stack: "stack" in error ?
+				error.stack :
+				"stack" in error.error ?
+					error.error.stack :
+					"[Unsupported]"
+		} : {
+			message: error.reason,
+			type: error.type,
+			file: "[Unknown]",
+			lineNumber: "[Unknown]",
+			columnNumber: "[Unknown]",
+			stack: error.reason.stack ?? "[Unsupported]"
+		};
+		// Data related to the surrounding page environment.
+		const environmentData = {
+			// TODO: Implement.
+			// buildVersion: import.meta.env.BUILD_VERSION ?? "[Unknown]",
+			buildType: import.meta.env.MODE ?? "[Unknown]",
+			/* TODO: These should be replaced with references to the corresponding components, especially
+			   because the mapped list external reference, etc. should also be displayed as well. */
+			currentModeOrder: ElementUtils.getElementOrNull<HTMLSelectElement>("#mode-form-order")?.selectedOptions[0]?.value ?? "[Unknown]",
+			currentModeRange: ElementUtils.getElementOrNull<HTMLSelectElement>("#mode-form-range")?.selectedOptions[0]?.value ?? "[Unknown]",
+			currentSplitByMetadata: ElementUtils.getElementOrNull<HTMLInputElement>("#mode-form-split-by-metadata")?.checked ?? "[Unknown]",
+			currentList: ElementUtils.getElementOrNull<HTMLSelectElement>("#list-form")?.selectedOptions[0]?.value ?? "[Unknown]",
+			currentStartDatetime: ElementUtils.getElementOrNull<HTMLInputElement>("#datetime-start-form")?.value ?? "[Unknown]",
+			currentStartUTCOffset: ElementUtils.getElementOrNull<HTMLInputElement>("#utc-offset-start-form")?.value ?? "[Unknown]",
+			currentEndDatetime: ElementUtils.getElementOrNull<HTMLInputElement>("#datetime-end-form")?.value ?? "[Unknown]",
+			currentEndUTCOffset: ElementUtils.getElementOrNull<HTMLInputElement>("#utc-offset-end-form")?.value ?? "[Unknown]",
+			currentExclusiveDatetimes: ElementUtils.getElementOrNull<HTMLInputElement>("#date-exclusive-bound-form")?.checked ?? "[Unknown]",
+		};
+		/* TODO: Truncate main error message to ~50 characters, so it doesn't push the request for a GitHub
+		   issue off the edge of the screen.*/
+		this.write(`
+			<div class="stack-vertically">
+				<p class="list-name">An unhandled error occurred:<br>
+					"${errorData.message}"<br>
+					<br>
+					Please report this as a ${OutputWindow.#printLinkable(
+						{name: "GitHub Issue", url: "https://github.com/Nel-S/chronology-calculator/issues"}
+					)}!
+				</p>
+				<p class="label">
+					Please also copy the following information into your report:<br>
+					<br>
+					<ul>
+						<li>Message: "${errorData.message}"</li>
+						<li>Error type: ${errorData.type}</li>
+						<li>Build type: ${environmentData.buildType}</li>
+						<li>File: ${errorData.file}</li>
+						<li>Line: ${errorData.lineNumber}</li>
+						<li>Column: ${errorData.columnNumber}</li>
+						<li>Stack trace: ${errorData.stack}</li>
+						<li>
+							Current configuration:<ul>
+								<li>Mode order: "${environmentData.currentModeOrder}"</li>
+								<li>Mode range: "${environmentData.currentModeRange}"</li>
+								<li>Mode split by metadata: ${environmentData.currentSplitByMetadata}</li>
+								<li>List: "${environmentData.currentList}"</li>
+								<li>Start datetime: "${environmentData.currentStartDatetime}"</li>
+								<li>Start UTC offset: "${environmentData.currentStartUTCOffset}"</li>
+								<li>End datetime: "${environmentData.currentEndDatetime}"</li>
+								<li>End UTC offset: "${environmentData.currentEndUTCOffset}"</li>
+								<li>Exclusive datetimes: "${environmentData.currentExclusiveDatetimes}"</li>
+							</ul>
+						</li>
+					</ul>
+				</p>
+			</div>`
+		);
 	}
 
 	printEntries(originalList: TimeseriesList, entriesOrMetadataLists: (Entry | null)[][] | Entry[]): void {
@@ -124,7 +206,9 @@ export class OutputWindow {
 			else {
 				const earliestDuration = Math.floor(DateUtils.millisecondsBetween(sortedDates[0], currentDate)/MILLISECONDS_PER_DAY);
 				const latestDuration = Math.floor(DateUtils.millisecondsBetween(sortedDates[sortedDates.length - 1], currentDate)/MILLISECONDS_PER_DAY);
-				text = `Elements of this list were last updated between ${latestDuration} and ${earliestDuration} day${earliestDuration == 1 ? "" : "s"} ago.`
+				text = latestDuration == earliestDuration ?
+					`Elements of this list were last updated ${latestDuration} day${latestDuration == 1 ? "" : "s"} ago.` :
+					`Elements of this list were last updated between ${earliestDuration} and ${latestDuration} days ago.`;
 			}
 		}
 		this.lastUpdatedText.innerText = text;

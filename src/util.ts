@@ -191,27 +191,22 @@ export class NetworkUtils {
 
 	static async getGithubLastCommit(url: string | URL): Promise<string | null> {
 		// Strings get converted to URLs, or return null if impossible
-		if (!(url instanceof URL)) {
-			try {
-				url = new URL(url);
-			} catch {
-				return null;
-			}
-		}
-		// if (!url) return null;
+		const actualURL = url instanceof URL ? url : URL.parse(url);
+		if (!actualURL) return null;
+
 		const whitelistedProtocols = new Set(["http:", "https:"]);
-		if (!whitelistedProtocols.has(url.protocol)) return null;
+		if (!whitelistedProtocols.has(actualURL.protocol)) return null;
 		const whitelistedDomains = new Set(["github.com", "www.github.com", "raw.githubusercontent.com"]);
-		if (!whitelistedDomains.has(url.hostname)) return null;
+		if (!whitelistedDomains.has(actualURL.hostname)) return null;
 
 		// Possible formats:
 		// raw.githubusercontent.com/OWNER/REPOSITORY/SHA/PATH (parameters 1, 2, 3, 4)
 		// github.com/OWNER/REPOSITORY/blob/[SHA OR BRANCH]/PATH (parameters 1, 2, 4, 5)
 		// raw.githubusercontent.com/OWNER/REPOSITORY/refs/heads/BRANCH/PATH (parameters 1, 2, 5, 6)
-		const extraParameters = url.pathname.includes("/blob/") ? 1 :
-			url.pathname.includes("/refs/heads/") ? 2 :
+		const extraParameters = actualURL.pathname.includes("/blob/") ? 1 :
+			actualURL.pathname.includes("/refs/heads/") ? 2 :
 			0;
-		const filepathParameters = url.pathname.split("/");
+		const filepathParameters = actualURL.pathname.split("/");
 		if (filepathParameters.length < 5 + extraParameters) return null;
 		const owner = filepathParameters[1];
 		const repository = filepathParameters[2];
