@@ -127,6 +127,8 @@ export class NetworkUtils {
 		)) {
 			// Check if it's from GitHub
 			// TODO: Expand to GitLab? Other sites? More generally?
+			/* TODO: If null, eventual last updated text omits the date entirely instead of
+			   indicating uncertainty. Investigate.*/
 			const lastCommitDatetime = await NetworkUtils.getGithubLastCommit(url);
 			// Headers are immutable, so we need to construct a brand-new Response object
 			if (lastCommitDatetime) fetchResponse = new Response(fetchResponse.body, {

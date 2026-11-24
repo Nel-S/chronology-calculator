@@ -13,6 +13,13 @@ export class OutputWindow {
 
 		window.addEventListener("error", (error) => this.logError(error));
 		window.addEventListener("unhandledrejection", (error) => this.logError(error));
+
+		window.addEventListener("list-change", (e) => {
+			if (!(e instanceof CustomEvent)) throw new Error("Custom event listener did not receive a CustomEvent.");
+			const listSelection = e.detail?.selection ?? "";
+			if (listSelection == "From URL") this.write("[Waiting for URL...]");
+			else if (listSelection == "From File Upload") this.write("[Waiting for file upload...]");
+		});
 	}
 
 	blank(mode: "window" | "lastUpdated" | "both" = "both"): void {

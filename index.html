@@ -32,25 +32,6 @@
 
 		<ul class="input-box stack-horizontally-wrap spaced">
 			<li class="narrow-rounded-box input-entry-decoration stack-vertically">
-				<label class="label" for="mode-form">Mode:</label>
-				<div class="mode-form">
-					<div class="stack-horizontally-wrap spaced">
-						<select id="mode-form-order">
-							<!-- Automatically populated when modeOrder is constructed -->
-						</select>
-						<select id="mode-form-range">
-							<!-- Automatically populated when modeRange is constructed -->
-						</select>
-					</div>
-					<div class="stack-horizontally spaced">
-						<div>
-							<input type="checkbox" id="mode-form-split-by-metadata"></input>
-							<label for="mode-form-split-by-metadata" class="smaller-label">Split by metadata</label>
-						</div>
-					</div>
-				</div>
-			</li>
-			<li class="narrow-rounded-box input-entry-decoration stack-vertically">
 				<label class="label" for="list-form">List:</label>
 				<select id="list-form">
 					<!-- Automatically populated when listSelector is constructed -->
@@ -58,6 +39,23 @@
 				<input type="url" id="list-form-url" placeholder="URL..." class="hidden">
 				<!-- TODO: Figure out how to center -->
 				<input type="file" id="list-form-file-upload" accept=".json,.JSON" class="hidden">
+			</li>
+			<li class="narrow-rounded-box input-entry-decoration stack-vertically">
+				<label class="label" for="mode-form">Mode:</label>
+				<div id="mode-form" class="stack-vertically">
+					<select id="mode-form-order" class="translucent" inert>
+						<!-- Automatically populated when modeOrder is constructed -->
+					</select>
+					<select id="mode-form-range" class="translucent" inert>
+						<!-- Automatically populated when modeRange is constructed -->
+					</select>
+					<div class="stack-horizontally spaced">
+						<div>
+							<input type="checkbox" id="mode-form-split-by-metadata" disabled></input>
+							<label for="mode-form-split-by-metadata" class="smaller-label">Split by metadata</label>
+						</div>
+					</div>
+				</div>
 			</li>
 			<li class="stack-vertically">
 				<div class="narrow-rounded-box input-entry-decoration stack-horizontally spaced">

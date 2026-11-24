@@ -88,15 +88,15 @@ export class Selector<T, E extends HTMLElement> {
 	// 	return this;
 	// }
 
-	// hide(): Selector<T, E> {
-	// 	this.element.classList.add("translucent");
-	// 	this.element.inert = true;
-	// 	return this;
-	// }
+	hide(): Selector<T, E> {
+		this.element.classList.add("translucent");
+		this.element.inert = true;
+		return this;
+	}
 
-	// show(): Selector<T, E> {
-	// 	this.element.classList.remove("translucent");
-	// 	this.element.inert = false;
-	// 	return this;
-	// }
+	show(): Selector<T, E> {
+		this.element.classList.remove("translucent");
+		this.element.inert = false;
+		return this;
+	}
 }

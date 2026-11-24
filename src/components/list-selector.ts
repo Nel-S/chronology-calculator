@@ -34,15 +34,15 @@ const DEFAULT_LIST_REFERENCES: Record<string, ExternalList[]> = {
 				"stable": "",
 				// Version names that were reuploads, and so should be renamed
 				// to reduce confusion
-				"name=1.14.2 Pre-Release 4": "1.14.2 Pre-Release 4 (270720)",
-				"name=1.16": "1.16 (231620)",
-				"name=1.16.5 Release Candidate 1": "1.16.5 Release Candidate 1 (1558)",
+				"name==1.14.2 Pre-Release 4": "1.14.2 Pre-Release 4 (270720)",
+				"name==1.16": "1.16 (231620)",
+				"name==1.16.5 Release Candidate 1": "1.16.5 Release Candidate 1 (1558)",
 				// This key should be renamed
 				"release_time": "timestamp",
 				// Values of "type": "release" should have that key erased
-				"type=release": "",
+				"type==release": "",
 				// Values of "type": "snapshot" should be renamed to "type": "public snapshot"
-				"type=snapshot": "public snapshot",
+				"type==snapshot": "public snapshot",
 				// This key should have its values set as keys (to act as metadata), with the
 				// original key being erased
 				"type": "_"
@@ -86,6 +86,61 @@ const DEFAULT_LIST_REFERENCES: Record<string, ExternalList[]> = {
 	]
 };
 
+/* TODO: This currently features an **extreme** amount of repetition, considering
+   this currently must traverse the entire tree anew for each different key in the
+   mapper. We should refactor this so we only perform the traversal once.*/
+function renameKeysRecursive(obj: any, keyPath: string[], replacement: string) {
+	// If obj is not an object, or the keyPath has been exhausted, abort
+	if (obj == null || obj == undefined || !keyPath.length) return;
+	const currentKeyPart = keyPath[0];
+	// If we have followed the key path down to a single key:
+	if (keyPath.length == 1) {
+		// Test if the desired operation is a value replacement. If so...
+		const splitForValue = currentKeyPart.indexOf(ListSelector.PARSER_KEY_VALUE_DELIMETER);
+		if (splitForValue != -1) {
+			// Check if the current object contains the desired key, and if it is set to the desired value
+			const desiredKey = currentKeyPart.slice(0, splitForValue);
+			const desiredValue = currentKeyPart.slice(splitForValue + ListSelector.PARSER_KEY_VALUE_DELIMETER.length);
+			if (Object.keys(obj).includes(desiredKey) && obj[desiredKey] == desiredValue) {
+				// If so, and a replacement was provided, replace with the replacement
+				if (replacement) obj[desiredKey] = replacement;
+				// Otherwise if the replacement is blank, delete the key
+				else delete obj[desiredKey];
+				return;
+			}
+			// [Falls out of this eventual block if that failed...]
+		// The desired operation is otherwise a key replacement. Check if the current object
+		// contains the desired key. If so...
+		} else if (Object.keys(obj).includes(currentKeyPart)) {
+			// If the replacement is specified as metadata, add it as a metadata entry
+			if (replacement == ListSelector.PARSER_CREATE_NEW_KEY_WITH_VALUE_DELIMETER) obj[obj[currentKeyPart]] = true;
+			// If an explicit replacement was specified, rename the key.
+			else if (replacement) obj[replacement] = obj[currentKeyPart];
+			// In all cases, delete the existing leftover key.
+			// (This is also the only thing that will trigger if the replacement was blank.)
+			delete obj[currentKeyPart]; // From https://stackoverflow.com/q/4647817
+			return;
+		}
+		// [Falls out of this eventual block if that failed...]
+	}
+	
+	// This will only trigger if A. the key path is of length > 1, and B. the current key
+	// part is a key of the current object.
+	if (Object.keys(obj).includes(currentKeyPart)) {
+		// If so, repeat recursively under that key
+		renameKeysRecursive(obj[currentKeyPart], keyPath.slice(1), replacement);
+		return;
+	}
+	// Otherwise if the current object is an array, repeat recursively under every value of the
+	// array
+	if (obj instanceof Array) {
+		for (const branch of obj) {
+			renameKeysRecursive(branch, keyPath, replacement);
+		}
+		return;
+	}
+}
+
 export class ListSelector {
 	listSelector: Selector<ExternalList[], HTMLOptionElement>;
 	listCache: Record<string, TimeseriesList>;
@@ -93,6 +148,10 @@ export class ListSelector {
 	fileForm: HTMLInputElement;
 	uploadedURLsCount: number;
 	uploadedFilesCount: number;
+
+	static readonly PARSER_KEY_DELIMETER: string = "::";
+	static readonly PARSER_KEY_VALUE_DELIMETER: string = "==";
+	static readonly PARSER_CREATE_NEW_KEY_WITH_VALUE_DELIMETER: string = "_";
 
 	constructor(listElementID: string, urlElementID: string, fileElementID: string) {
 		this.listSelector = new Selector<ExternalList[], HTMLOptionElement>(listElementID, DEFAULT_LIST_REFERENCES);
@@ -103,7 +162,17 @@ export class ListSelector {
 		this.listCache = {};
 		this.urlForm = ElementUtils.getElementOrThrow<HTMLInputElement>(urlElementID);
 		this.fileForm = ElementUtils.getElementOrThrow<HTMLInputElement>(fileElementID);
-		this.listSelector.element.addEventListener("input", this.#updateInputVisibility.bind(this));
+		this.listSelector.element.addEventListener("input", () => {
+			// Update URL/file upload visibilities
+			this.#updateInputVisibility();
+			// Custom event notifier that new list was selected
+			this.listSelector.element.dispatchEvent(new CustomEvent("list-change", {
+				bubbles: true,
+				detail: {
+					selection: this.listSelector.selection.label
+				}
+			}));
+		});
 		// These MUST be registered before any event listeners that trigger the list calculations.
 		this.urlForm.addEventListener("change", this.#registerList.bind(this));
 		this.fileForm.addEventListener("change", this.#registerList.bind(this));
@@ -179,61 +248,6 @@ export class ListSelector {
 		return true;
 	}
 
-	/* TODO: This currently features an **extreme** amount of repetition, considering
-	   this currently must traverse the entire tree anew for each different key in the
-	   mapper. We should refactor this so we only perform the traversal once.*/
-	#renameKeysRecursive(obj: any, keyPath: string[], replacement: string) {
-		// If obj is not an object, or the keyPath has been exhausted, abort
-		if (obj == null || obj == undefined || !keyPath.length) return;
-		const currentKeyPart = keyPath[0];
-		// If we have followed the key path down to a single key:
-		if (keyPath.length == 1) {
-			// Test if the desired operation is a value replacement. If so...
-			const splitForValue = currentKeyPart.indexOf("=");
-			if (splitForValue != -1) {
-				// Check if the current object contains the desired key, and if it is set to the desired value
-				const desiredKey = currentKeyPart.slice(0, splitForValue);
-				const desiredValue = currentKeyPart.slice(splitForValue + 1);
-				if (Object.keys(obj).includes(desiredKey) && obj[desiredKey] == desiredValue) {
-					// If so, and a replacement was provided, replace with the replacement
-					if (replacement) obj[desiredKey] = replacement;
-					// Otherwise if the replacement is blank, delete the key
-					else delete obj[desiredKey];
-					return;
-				}
-				// [Falls out of this eventual block if that failed...]
-			// The desired operation is otherwise a key replacement. Check if the current object
-			// contains the desired key. If so...
-			} else if (Object.keys(obj).includes(currentKeyPart)) {
-				// If the replacement is specified as metadata, add it as a metadata entry
-				if (replacement == "_") obj[obj[currentKeyPart]] = true;
-				// If an explicit replacement was specified, rename the key.
-				else if (replacement) obj[replacement] = obj[currentKeyPart];
-				// In all cases, delete the existing leftover key.
-				// (This is also the only thing that will trigger if the replacement was blank.)
-				delete obj[currentKeyPart]; // From https://stackoverflow.com/q/4647817
-				return;
-			}
-			// [Falls out of this eventual block if that failed...]
-		}
-		
-		// This will only trigger if A. the key path is of length > 1, and B. the current key
-		// part is a key of the current object.
-		if (Object.keys(obj).includes(currentKeyPart)) {
-			// If so, repeat recursively under that key
-			this.#renameKeysRecursive(obj[currentKeyPart], keyPath.slice(1), replacement);
-			return;
-		}
-		// Otherwise if the current object is an array, repeat recursively under every value of the
-		// array
-		if (obj instanceof Array) {
-			for (const branch of obj) {
-				this.#renameKeysRecursive(branch, keyPath, replacement);
-			}
-			return;
-		}
-	}
-
 	async query(): Promise<TimeseriesList | null> {
 		const listSelection = this.listSelector.selection;
 		if (!listSelection.label) return null;
@@ -268,11 +282,11 @@ export class ListSelector {
 				([key, value]) => {
 					// Determine the sequence of keys needed to be traversed to reach the key/value
 					// we desire to change
-					const keyPath = key.split(":");
+					const keyPath = key.split(ListSelector.PARSER_KEY_DELIMETER);
 					// console.log(keyPath, value, responseJSON);
 					// Then recursively iterate through the object until we either find the keys
 					// or exhaust the key path.
-					this.#renameKeysRecursive(responseJSON, keyPath, value);
+					renameKeysRecursive(responseJSON, keyPath, value);
 					// console.log(keyPath, value, responseJSON);
 				}
 			);

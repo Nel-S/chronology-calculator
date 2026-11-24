@@ -6,6 +6,41 @@ import {ModeRangeSelector} from "./components/mode-range-selector.js";
 import {OutputWindow} from "./components/output-window.js";
 import {type TimeseriesList} from "./lists.js";
 
+const startDatetimeWithMemory = new DatetimeWithMemory(
+	"#datetime-start-form",
+	"#utc-offset-start-form"
+);
+const endDatetimeWithMemory = new DatetimeWithMemory(
+	"#datetime-end-form",
+	"#utc-offset-end-form"
+);
+// Event listeners for datememories
+// TODO: Move to datememory.ts after that file is rewritten
+window.addEventListener("list-change", (e) => {
+	if (!(e instanceof CustomEvent)) throw new Error("Custom event listener did not receive a CustomEvent.");
+	const listSelection = e.detail?.selection ?? "";
+	if (listSelection == "From URL" || listSelection == "From File Upload") startDatetimeWithMemory.hide();
+	else startDatetimeWithMemory.show();
+});
+window.addEventListener("list-change", (e) => {
+	if (!(e instanceof CustomEvent)) throw new Error("Custom event listener did not receive a CustomEvent.");
+	const listSelection = e.detail?.selection ?? "";
+	if (listSelection == "From URL" || listSelection == "From File Upload") endDatetimeWithMemory.hide();
+	else endDatetimeWithMemory.show();
+});
+window.addEventListener("mode-range-change", (e) => {
+	if (!(e instanceof CustomEvent)) throw new Error("Custom event listener did not receive a CustomEvent.");
+	const modeSelection = e.detail?.selection ?? "";
+	if (modeSelection.endsWith("End Date")) startDatetimeWithMemory.hide();
+	else startDatetimeWithMemory.show();
+});
+window.addEventListener("mode-range-change", (e) => {
+	if (!(e instanceof CustomEvent)) throw new Error("Custom event listener did not receive a CustomEvent.");
+	const modeSelection = e.detail?.selection ?? "";
+	if (modeSelection.endsWith("Start Date")) endDatetimeWithMemory.hide();
+	else endDatetimeWithMemory.show();
+});
+
 const modeOrder = new ModeOrderSelector(
 	"#mode-form-order",
 	"#mode-form-split-by-metadata"
@@ -18,14 +53,6 @@ const listSelector = new ListSelector(
 	"#list-form",
 	"#list-form-url",
 	"#list-form-file-upload"
-);
-const startDatetimeWithMemory = new DatetimeWithMemory(
-	"#datetime-start-form",
-	"#utc-offset-start-form"
-);
-const endDatetimeWithMemory = new DatetimeWithMemory(
-	"#datetime-end-form",
-	"#utc-offset-end-form"
 );
 const outputWindow = new OutputWindow(
 	"#output-container",
@@ -56,25 +83,10 @@ async function initialize(): Promise<void> {
 async function onListSelectorChange(): Promise<void> {
 	/* Check if a Custom option was selected (in which case input elements' visibilities need
 	   to be updated, but otherwise a recalculation doesn't need to be performed). */
-	if (updateIfCustomUpload()) return;
+	const selection = listSelector.listSelector.selection.label;
+	if (selection == "From URL" || selection == "From File Upload") return;
 	// Otherwise, perform a recalculation.
 	await onNewList();
-}
-
-function updateIfCustomUpload(): boolean {
-	switch (listSelector.listSelector.element.value) {
-		case "From URL":
-			outputWindow.write("[Waiting for URL...]");
-			endDatetimeWithMemory.hide();
-			return true;
-		case "From File Upload":
-			outputWindow.write("[Waiting for file upload...]");
-			endDatetimeWithMemory.hide();
-			return true;
-		default:
-			endDatetimeWithMemory.show();
-			return false;
-	}
 }
 
 async function onNewList(): Promise<void> {

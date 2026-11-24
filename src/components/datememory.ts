@@ -1,3 +1,6 @@
+/* TODO: Rewrite this file to be a component in the same vein as modeOrder, modeRange, and listSelector.
+   Also move datetime exclusivity checkbox to this component. */
+
 import {DateUtils, ElementUtils} from "../util.js"
 
 const VALID_TIMEZONES = new Map([
