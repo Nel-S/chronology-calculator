@@ -2,89 +2,98 @@ import {externalSchema, timeseriesListSchema, type ExternalList, type Timeseries
 import {ElementUtils, NetworkUtils} from "../util.js";
 import {Selector} from "./selector.js";
 
-const DEFAULT_LIST_REFERENCES: Record<string, ExternalList[]> = {
-	"Minimal Example": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Schema%20Examples/Minimal%20Example.json"
-		})
-	],
-	"Comprehensive Example": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Schema%20Examples/Comprehensive%20Example.json"
-		})
-	],
-	"Java Edition": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Java%20Edition.json"
-		}),
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/misode/mcmeta/refs/heads/summary/versions/data.json",
-			mapper: {
-				// These keys should be erased
-				"build_time": "",
-				"data_pack_version": "",
-				"data_pack_version_minor": "",
-				"data_version": "",
-				"id": "",
-				"protocol_version": "",
-				"release_target": "",
-				"resource_pack_version": "",
-				"resource_pack_version_minor": "",
-				"sha1": "",
-				"stable": "",
-				// Version names that were reuploads, and so should be renamed
-				// to reduce confusion
-				"name==1.14.2 Pre-Release 4": "1.14.2 Pre-Release 4 (270720)",
-				"name==1.16": "1.16 (231620)",
-				"name==1.16.5 Release Candidate 1": "1.16.5 Release Candidate 1 (1558)",
-				// This key should be renamed
-				"release_time": "timestamp",
-				// Values of "type": "release" should have that key erased
-				"type==release": "",
-				// Values of "type": "snapshot" should be renamed to "type": "public snapshot"
-				"type==snapshot": "public snapshot",
-				// This key should have its values set as keys (to act as metadata), with the
-				// original key being erased
-				"type": "_"
-			}
-		}),
-	],
-	"Nintendo Switch Edition": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Nintendo%20Switch%20Edition.json"
-		})
-	],
-	"PlayStation 3 Edition": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%203%20Edition.json"
-		})
-	],
-	"PlayStation 4 Edition": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%204%20Edition.json"
-		})
-	],
-	"PlayStation Vita Edition": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%20Vita%20Edition.json"
-		})
-	],
-	"Wii U Edition": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Wii%20U%20Edition.json"
-		})
-	],
-	"Xbox 360 Edition": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20360%20Edition.json"
-		})
-	],
-	"Xbox One Edition": [
-		externalSchema.parse({
-			source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20One%20Edition.json"
-		})
-	]
-};
+// This is of the format {optgroup: {option: value}}.
+const DEFAULT_LIST_REFERENCES: Record<string, Record<string, ExternalList[]>> = {
+	"Schema Examples": {
+		"Minimal Example": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Schema%20Examples/Minimal%20Example.json"
+			})
+		],
+		"Comprehensive Example": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Schema%20Examples/Comprehensive%20Example.json"
+			})
+		]
+	},
+	"Minecraft Releases": {
+		"Java Edition": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Java%20Edition.json"
+			}),
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/misode/mcmeta/refs/heads/summary/versions/data.json",
+				mapper: {
+					// These keys should be erased
+					"build_time": "",
+					"data_pack_version": "",
+					"data_pack_version_minor": "",
+					"data_version": "",
+					"id": "",
+					"protocol_version": "",
+					"release_target": "",
+					"resource_pack_version": "",
+					"resource_pack_version_minor": "",
+					"sha1": "",
+					"stable": "",
+					// Version names that were reuploads, and so should be renamed
+					// to reduce confusion
+					"name==1.14.2 Pre-Release 4": "1.14.2 Pre-Release 4 (270720)",
+					"name==1.16": "1.16 (231620)",
+					"name==1.16.5 Release Candidate 1": "1.16.5 Release Candidate 1 (1558)",
+					// This key should be renamed
+					"release_time": "timestamp",
+					// Values of "type": "release" should have that key erased
+					"type==release": "",
+					// Values of "type": "snapshot" should be renamed to "type": "public snapshot"
+					"type==snapshot": "public snapshot",
+					// This key should have its values set as keys (to act as metadata), with the
+					// original key being erased
+					"type": "_"
+				}
+			}),
+		],
+		"Nintendo Switch Edition": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Nintendo%20Switch%20Edition.json"
+			})
+		],
+		"PlayStation 3 Edition": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%203%20Edition.json"
+			})
+		],
+		"PlayStation 4 Edition": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%204%20Edition.json"
+			})
+		],
+		"PlayStation Vita Edition": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/PlayStation%20Vita%20Edition.json"
+			})
+		],
+		"Wii U Edition": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Wii%20U%20Edition.json"
+			})
+		],
+		"Xbox 360 Edition": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20360%20Edition.json"
+			})
+		],
+		"Xbox One Edition": [
+			externalSchema.parse({
+				source: "https://raw.githubusercontent.com/Nel-S/chronology-calculator/refs/heads/development/preset-lists/Minecraft%20Releases/Xbox%20One%20Edition.json"
+			})
+		]
+	},
+	"Custom": {
+		"From URL": [],
+		"From File Upload": []
+	}
+}
 
 /* TODO: This currently features an **extreme** amount of repetition, considering
    this currently must traverse the entire tree anew for each different key in the
@@ -142,7 +151,7 @@ function renameKeysRecursive(obj: any, keyPath: string[], replacement: string) {
 }
 
 export class ListSelector {
-	listSelector: Selector<ExternalList[], HTMLOptionElement>;
+	listSelector: Selector<ExternalList[], HTMLSelectElement>;
 	listCache: Record<string, TimeseriesList>;
 	urlForm: HTMLInputElement;
 	fileForm: HTMLInputElement;
@@ -154,10 +163,17 @@ export class ListSelector {
 	static readonly PARSER_CREATE_NEW_KEY_WITH_VALUE_DELIMETER: string = "_";
 
 	constructor(listElementID: string, urlElementID: string, fileElementID: string) {
-		this.listSelector = new Selector<ExternalList[], HTMLOptionElement>(listElementID, DEFAULT_LIST_REFERENCES);
-		// TODO: Re-add optgroups
-		this.listSelector.element.appendChild(new Option("From URL"));
-		this.listSelector.element.appendChild(new Option("From File Upload"));
+		this.listSelector = new Selector<ExternalList[], HTMLSelectElement>(listElementID);
+		Object.entries(DEFAULT_LIST_REFERENCES).forEach(
+			// For each optgroup label, and associated entries:
+			([optgroupLabel, entries]) => {
+				Object.entries(entries).forEach(
+					/* For each key-value entry pair, add it to the list selector under the
+					   specified optgroup */
+					([key, value]) => this.listSelector.add(key, value, {optgroup: optgroupLabel})
+				)
+			}
+		);
 
 		this.listCache = {};
 		this.urlForm = ElementUtils.getElementOrThrow<HTMLInputElement>(urlElementID);

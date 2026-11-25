@@ -54,12 +54,31 @@ export class Selector<T, E extends HTMLElement> {
 
 	add(
 		label: string,
-		value: T
+		value: T,
+		metadata: Record<string, string> | null = null
 	): Selector<T, E> {
+		// Add label+value to mapper
 		if (this.mapper[label]) throw new Error(`Attempted to add entry with duplicate key "${label}" to Selector object.`);
 		this.mapper[label] = value;
+
 		if (this.element instanceof HTMLSelectElement) {
-			this.element.add(new Option(label));
+			let appendedValue: HTMLOptGroupElement | HTMLOptionElement;
+			// If we are classifying the added label+value under an optgroup:
+			if (metadata && "optgroup" in metadata) {
+				// Select the optgroup if it already exists
+				appendedValue = this.element.querySelector<HTMLOptGroupElement>(`optgroup[label="${metadata.optgroup}"]`) ?? (
+					// If it doesn't exist, create a new one
+					appendedValue = document.createElement("optgroup"),
+					appendedValue.label = metadata.optgroup,
+					appendedValue
+				)
+				// Add the option to the optgroup
+				appendedValue.appendChild(new Option(label));
+			} else {
+				// Otherwise create the option directly
+				appendedValue = new Option(label);
+			}
+			this.element.appendChild(appendedValue);
 		}
 		return this;
 	}

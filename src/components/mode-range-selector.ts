@@ -3,33 +3,33 @@ import {ElementUtils} from "../util.js";
 import {Selector} from "./selector.js";
 
 const DEFAULT_RANGES: Record<string, (list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean) => [number, number][]> = {
-	"Before/During Start Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+	"Before Start Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
 		const maxIndex = maxIndexBeforeDate(list, dates.lower, exclusive);
 		if (maxIndex === null) return [];
 		return [[maxIndex, list.entries.length - 1]];
 	},
-	"After/During Start Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+	"After Start Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
 		const minIndex = minIndexAfterDate(list, dates.lower, exclusive);
 		if (minIndex === null) return [];
 		return [[0, minIndex]];
 	},
-	"Before/During End Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+	"Before End Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
 		const maxIndex = maxIndexBeforeDate(list, dates.upper, exclusive);
 		if (maxIndex === null) return [];
 		return [[maxIndex, list.entries.length - 1]];
 	},
-	"After/During End Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+	"After End Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
 		const minIndex = minIndexAfterDate(list, dates.upper, exclusive);
 		if (minIndex === null) return [];
 		return [[0, minIndex]];
 	},
-	"Between/During Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+	"Between Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
 		const minIndex = minIndexAfterDate(list, dates.lower, exclusive);
 		const maxIndex = maxIndexBeforeDate(list, dates.upper, exclusive);
 		if (minIndex === null || maxIndex === null) return [];
 		return [[maxIndex, minIndex]];
 	},
-	"Not Between/During Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
+	"Not Between Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
 		const beforeMaxIndex = maxIndexBeforeDate(list, dates.lower, exclusive);
 		const afterMinIndex = minIndexAfterDate(list, dates.upper, exclusive);
 		if (beforeMaxIndex === null || afterMinIndex === null) return [];
@@ -38,11 +38,11 @@ const DEFAULT_RANGES: Record<string, (list: TimeseriesList, dates: {lower: Date,
 };
 
 function maxIndexBeforeDate(
-	list: TimeseriesList | null,
-	date: Date | null,
+	list: TimeseriesList,
+	date: Date,
 	exclusive: boolean = false
 ) : number | null {
-	if (!list || !list.entries || !date) return null;
+	if (!list.entries?.length) return null;
 
 	// Find the minimum i such that date >= list.entries[i] if inclusive, or date > list.entries[i] if exclusive.
 	// = Either date >= list.entries[0] (inclusive; date > list.entries[0] exclusive), or for i > 1, find i such that list.entries[i - 1] > date >(=?) list.entries[i].
@@ -77,11 +77,11 @@ function maxIndexBeforeDate(
 
 // TODO: Doesn't currently work.
 function minIndexAfterDate(
-	list: TimeseriesList | null,
-	date: Date | null,
+	list: TimeseriesList,
+	date: Date,
 	exclusive: boolean = false
 ) : number | null {
-	if (!list || !list.entries || !date) return null;
+	if (!list.entries?.length) return null;
 
 	// Find the maximum i such that date <= list.entries[i].
 	// = Either date <= list.entries[length-1], or for i < length-1, find i such that list.entries[i - 1] < date <= list.entries[i].
@@ -126,8 +126,8 @@ export class ModeRangeSelector {
 			(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean) => [number, number][],
 			HTMLSelectElement
 		>(rangesElementID, DEFAULT_RANGES);
-		if (this.rangeSelector.contains("Before/During End Date")) {
-			this.rangeSelector.element.value = "Before/During End Date";
+		if (this.rangeSelector.contains("Before End Date")) {
+			this.rangeSelector.element.value = "Before End Date";
 		}
 		this.inclusivitySelector = ElementUtils.getElementOrThrow<HTMLInputElement>(inclusivityElementID);
 		this.inclusivitySelector.checked = false;
