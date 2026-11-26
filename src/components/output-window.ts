@@ -90,7 +90,7 @@ export class OutputWindow {
 		};
 		// Data related to the surrounding page environment.
 		const environmentData = {
-			// TODO: Implement.
+			// TODO, FIX BEFORE RELEASE: Implement.
 			// buildVersion: import.meta.env.BUILD_VERSION ?? "[Unknown]",
 			buildType: import.meta.env.MODE ?? "[Unknown]",
 			/* TODO: These should be replaced with references to the corresponding components, especially

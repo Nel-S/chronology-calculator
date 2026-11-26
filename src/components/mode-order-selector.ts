@@ -48,16 +48,17 @@ const DEFAULT_ORDERS: Record<string, (list: TimeseriesList, indices: [number, nu
 			);
 	},
 	"Find All Entries": function(list: TimeseriesList, indices: [number, number][], metadata: boolean = true): (Entry | null)[][] | Entry[] {
-		if (metadata) throw new Error("'All' is not currently supported with split metadata.");
-		return indices.flatMap(
-			(indexPair) => list.entries.slice(indexPair[0], indexPair[1]+1)
-		);
+		return metadata ?
+			indices.map(
+				(indexPair) => allMetadata(list, indexPair)
+			) :	
+			indices.flatMap(
+				(indexPair) => list.entries.slice(indexPair[0], indexPair[1]+1)
+			);
 	}
 };
 
-function lastMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
-	if (!list || !list.metadata || !indices) return [];
-
+function lastMetadata(list: TimeseriesList, indices: [number, number]) : (Entry | null)[] {
 	// The ultimate array of first entries to be outputted.
 	const entries: (Entry | null)[] = new Array(list.metadata.length + 1).fill(null);
 	// A "metadata -> entries index" mapping, for convienence.
@@ -83,9 +84,7 @@ function lastMetadata(list: TimeseriesList | null, indices: [number, number]) : 
 	return entries;
 }
 
-function firstMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
-	if (!list || !list.metadata || !indices) return [];
-
+function firstMetadata(list: TimeseriesList, indices: [number, number]) : (Entry | null)[] {
 	// The ultimate array of last entries to be outputted.
 	const entries: (Entry | null)[] = new Array(list.metadata.length + 1).fill(null);
 	// A "metadata -> entries index" mapping, for convienence.
@@ -111,9 +110,10 @@ function firstMetadata(list: TimeseriesList | null, indices: [number, number]) :
 	return entries;
 }
 
-function medianMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
-	if (!list || !list.metadata || !indices) return [];
-
+/* TODO, FIX BEFORE RELEASE: Medians should be calculated on a metadata-by-metadata basis.
+   (In contrast, currently this just finds the entry closest to the middle, and pulls the entry with each 
+   metadata closest to it.) */
+function medianMetadata(list: TimeseriesList, indices: [number, number]) : (Entry | null)[] {
 	// The ultimate array of first entries to be outputted.
 	const entries: (Entry | null)[] = new Array(list.metadata.length + 1).fill(null);
 	// A "metadata -> entries index" mapping, for convienence.
@@ -144,9 +144,7 @@ function medianMetadata(list: TimeseriesList | null, indices: [number, number]) 
 	return entries;
 }
 
-function randomMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
-	if (!list || !list.metadata || !indices) return [];
-
+function randomMetadata(list: TimeseriesList, indices: [number, number]) : (Entry | null)[] {
 	// The ultimate array of first entries to be outputted.
 	const entries: (Entry | null)[] = new Array(list.metadata.length + 1).fill(null);
 	// A "metadata -> entries index" mapping, for convienence.
@@ -154,16 +152,31 @@ function randomMetadata(list: TimeseriesList | null, indices: [number, number]) 
 		list.metadata.map((metadata, index) => [metadata, index + 1])
 	);
 
-	const noMetadataEntries = list.entries.filter((entry) => !Object.keys(entry).filter(
-		(key) => list.metadata.includes(key)
-	).length);
-	entries[0] = !noMetadataEntries ? null : noMetadataEntries[Math.floor(Math.random()*noMetadataEntries.length)];
+	const noMetadataEntries = list.entries.slice(indices[0], indices[1]+1).filter(
+		(entry) => !Object.keys(entry).filter(
+			(key) => list.metadata.includes(key)
+		).length
+	);
+	entries[0] = noMetadataEntries.length ?
+		noMetadataEntries[Math.floor(Math.random()*noMetadataEntries.length)] :
+		null;
 
 	for (const metadata in list.metadata) {
-		const metadataEntries = list.entries.filter((entry) => Object.keys(entry).includes(metadata));
-		entries[metadataIndices[metadata]] = !metadataEntries ? null : metadataEntries[Math.floor(Math.random()*metadataEntries.length)];
+		const metadataEntries = list.entries.slice(indices[0], indices[1]+1).filter(
+			(entry) => Object.keys(entry).includes(metadata)
+		);
+		entries[metadataIndices[metadata]] = metadataEntries.length ?
+			metadataEntries[Math.floor(Math.random()*metadataEntries.length)] :
+			null;
 	}
 	return entries;
+}
+
+/* TODO, FIX BEFORE RELEASE: Implement. */
+function allMetadata(list: TimeseriesList | null, indices: [number, number]) : (Entry | null)[] {
+	list;
+	indices;
+	throw new Error("'All' is not currently supported with split metadata.");
 }
 
 export class ModeOrderSelector {
@@ -201,7 +214,7 @@ export class ModeOrderSelector {
 	evaluate(list: TimeseriesList, indices: [number, number][]): (Entry | null)[][] | Entry[] {
 		const currentFunction = this.orderSelector.selection.value;
 		const type = this.typeSelector.checked;
-		if (!currentFunction || type == null) return [];
+		if (currentFunction == null || type == null) return [];
 		return currentFunction(list, indices, type);
 	}
 }

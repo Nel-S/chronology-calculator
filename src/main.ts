@@ -6,6 +6,10 @@ import {ModeRangeSelector} from "./components/mode-range-selector.js";
 import {OutputWindow} from "./components/output-window.js";
 import {type TimeseriesList} from "./lists.js";
 
+/* TODO: With the current event listener setup, this has to be imported first for its shoe/hide buttons
+   to update properly, which is not a good thing.
+   The datetime objects, when rewritten, will probably need to log the last-received list and mode orders,
+   and update the interactability of its forms respectively.*/
 const startDatetimeWithMemory = new DatetimeWithMemory(
 	"#datetime-start-form",
 	"#utc-offset-start-form"
@@ -131,13 +135,15 @@ async function recalculate(): Promise<void> {
 		return;
 	}
 	
+	// console.log(`Dates:`);
+	// console.log({lower: startDatetime, upper: endDatetime});
 	const entryIndexRanges = modeRange.evaluate(list, {lower: startDatetime, upper: endDatetime});
 	// console.log(`Entry index ranges:`);
 	// console.log(entryIndexRanges);
 	const entriesOrMetadata = modeOrder.evaluate(list, entryIndexRanges);
 	// console.log(`Entry lists:`);
 	// console.log(entriesOrMetadata, entriesOrMetadata.length);
-	if (!entriesOrMetadata || !entriesOrMetadata.length) {
+	if (!entriesOrMetadata.length) {
 		outputWindow.write("[No entries exist]");
 		return;
 	}

@@ -4,48 +4,48 @@ import {Selector} from "./selector.js";
 
 const DEFAULT_RANGES: Record<string, (list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean) => [number, number][]> = {
 	"Before Start Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-		const maxIndex = maxIndexBeforeDate(list, dates.lower, exclusive);
+		const maxIndex = maxEntryBeforeDateIndex(list, dates.lower, exclusive);
 		if (maxIndex === null) return [];
 		return [[maxIndex, list.entries.length - 1]];
 	},
 	"After Start Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-		const minIndex = minIndexAfterDate(list, dates.lower, exclusive);
+		const minIndex = minEntryAfterDateIndex(list, dates.lower, exclusive);
 		if (minIndex === null) return [];
 		return [[0, minIndex]];
 	},
 	"Before End Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-		const maxIndex = maxIndexBeforeDate(list, dates.upper, exclusive);
+		const maxIndex = maxEntryBeforeDateIndex(list, dates.upper, exclusive);
 		if (maxIndex === null) return [];
 		return [[maxIndex, list.entries.length - 1]];
 	},
 	"After End Date": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-		const minIndex = minIndexAfterDate(list, dates.upper, exclusive);
+		const minIndex = minEntryAfterDateIndex(list, dates.upper, exclusive);
 		if (minIndex === null) return [];
 		return [[0, minIndex]];
 	},
 	"Between Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-		const minIndex = minIndexAfterDate(list, dates.lower, exclusive);
-		const maxIndex = maxIndexBeforeDate(list, dates.upper, exclusive);
+		const minIndex = minEntryAfterDateIndex(list, dates.lower, exclusive);
+		const maxIndex = maxEntryBeforeDateIndex(list, dates.upper, exclusive);
 		if (minIndex === null || maxIndex === null) return [];
 		return [[maxIndex, minIndex]];
 	},
 	"Not Between Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
-		const beforeMaxIndex = maxIndexBeforeDate(list, dates.lower, exclusive);
-		const afterMinIndex = minIndexAfterDate(list, dates.upper, exclusive);
+		const beforeMaxIndex = maxEntryBeforeDateIndex(list, dates.lower, exclusive);
+		const afterMinIndex = minEntryAfterDateIndex(list, dates.upper, exclusive);
 		if (beforeMaxIndex === null || afterMinIndex === null) return [];
 		return [[0, afterMinIndex], [beforeMaxIndex, list.entries.length - 1]];
 	}
 };
 
-function maxIndexBeforeDate(
+function maxEntryBeforeDateIndex(
 	list: TimeseriesList,
 	date: Date,
 	exclusive: boolean = false
 ) : number | null {
-	if (!list.entries?.length) return null;
-
-	// Find the minimum i such that date >= list.entries[i] if inclusive, or date > list.entries[i] if exclusive.
-	// = Either date >= list.entries[0] (inclusive; date > list.entries[0] exclusive), or for i > 1, find i such that list.entries[i - 1] > date >(=?) list.entries[i].
+	/* Find the maximum entry ( = minimum i, since the list is in descending order) such that
+	   date >= list.entries[i] if inclusive, or date > list.entries[i] if exclusive.
+	   = Either date >(=?) list.entries[0], or for i > 1, find i such that
+	   list.entries[i - 1] > date >(=?) list.entries[i].*/
 	let latestIndex = 0, earliestIndex = list.entries.length - 1;
 	let found = false;
 	// While there's still a range of indices to check:
@@ -75,23 +75,22 @@ function maxIndexBeforeDate(
 	return latestIndex;
 }
 
-// TODO: Doesn't currently work.
-function minIndexAfterDate(
+function minEntryAfterDateIndex(
 	list: TimeseriesList,
 	date: Date,
 	exclusive: boolean = false
 ) : number | null {
-	if (!list.entries?.length) return null;
-
-	// Find the maximum i such that date <= list.entries[i].
-	// = Either date <= list.entries[length-1], or for i < length-1, find i such that list.entries[i - 1] < date <= list.entries[i].
+	/* Find the minimum entry ( = maximum i, since the list is in descending order) such that
+	   date <= list.entries[i] if inclusive, or date < list.entries[i] if exclusive.
+	   = Either date <(=?) list.entries[length-1], or for i < length-1, find i such that
+	   list.entries[i + 1] < date <(=?) list.entries[i].*/
 	let latestIndex = 0, earliestIndex = list.entries.length - 1;
 	let found = false;
 	// While there's still a range of indices to check:
 	while (latestIndex <= earliestIndex) {
 		// Get (approximate) middle index
-		const middleIndex = Math.floor((latestIndex + earliestIndex)/2);
-		// If not (date <= list.entries[i]), we can discard entries [0-i? i-end?]
+		const middleIndex = Math.ceil((latestIndex + earliestIndex)/2);
+		// If not (date <= list.entries[i]), we can discard entries i-end
 		if (
 			exclusive ? date >= list.entries[middleIndex].timestamp
 			: date > list.entries[middleIndex].timestamp
@@ -99,12 +98,12 @@ function minIndexAfterDate(
 			earliestIndex = middleIndex - 1;
 			continue;
 		}
-		// If not (list.entries[i - 1] < date), we can discard entries [i-end? 0-i?]
-		if (middleIndex > 0 && list.entries[middleIndex - 1].timestamp >= date) {
+		// If not (list.entries[i + 1] < date), we can discard entries 0-i
+		if (middleIndex < list.entries.length - 1 && list.entries[middleIndex + 1].timestamp >= date) {
 			latestIndex = middleIndex + 1;
 			continue;
 		}
-		// Otherwise list.entries[i - 1] < date <= list.entries[i] as desired
+		// Otherwise list.entries[i + 1] < date <= list.entries[i] as desired
 		earliestIndex = middleIndex;
 		found = true;
 		break;
@@ -160,7 +159,7 @@ export class ModeRangeSelector {
 	evaluate(list: TimeseriesList, dates: {lower: Date, upper: Date}): [number, number][] {
 		const currentFunction = this.rangeSelector.selection.value;
 		const exclusive = this.inclusivitySelector.checked;
-		if (!currentFunction || exclusive == null) return [];
+		if (currentFunction == null || exclusive == null) return [];
 		return currentFunction(list, dates, exclusive);
 	}
 }

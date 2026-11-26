@@ -273,7 +273,7 @@ export class ListSelector {
 		if (cachedValue !== undefined) return cachedValue;
 
 		// Otherwise resolve each external reference in the list
-		if (!listSelection.value) return null;
+		if (!listSelection.value?.length) return null;
 		const timeseriesLists: TimeseriesList[] = [];
 		for (const reference of listSelection.value) {
 			// Query URL
@@ -353,9 +353,17 @@ export class ListSelector {
 				timeseriesLists[0].defaultLabel = otherList.defaultLabel;
 			}
 			// Merge lastModified dates...
-			if (!timeseriesLists[0].lastModified) {
+			if (
+				!timeseriesLists[0].lastModified || (
+					timeseriesLists[0].lastModified instanceof Array && !timeseriesLists[0].lastModified.length
+				)
+			) {
 				timeseriesLists[0].lastModified = otherList.lastModified;
-			} else if (!otherList.lastModified) {}
+			} else if (
+				!otherList.lastModified || (
+					otherList.lastModified instanceof Array && !otherList.lastModified.length
+				)
+			) {}
 			else if (timeseriesLists[0].lastModified instanceof Date) {
 				if (otherList.lastModified instanceof Date) {
 					timeseriesLists[0].lastModified = [timeseriesLists[0].lastModified, otherList.lastModified];

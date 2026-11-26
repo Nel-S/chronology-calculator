@@ -96,8 +96,8 @@ export class DatetimeWithMemory {
 		const datetime = DateUtils.getUTCDatetimeOrNull(this.dateElement);
 		if (datetime == null) return null;
 
-		/* TODO: This depends on whether it is the start date or end date, and whether it is
-		   first date before or last date before.*/
+		/* TODO, FIX BEFORE RELEASE: This depends on whether it is the start date or end date, and whether
+		   it is first date before or last date before.*/
 		if (this.highResolution) datetime.setUTCMinutes(datetime.getUTCMinutes() - 60*Number(this.utcOffsetElement.value), 59, 999);
 		else datetime.setUTCHours(23, 59, 59, 999);
 		return datetime;
