@@ -135,14 +135,11 @@ async function recalculate(): Promise<void> {
 		return;
 	}
 	
-	// console.log(`Dates:`);
-	// console.log({lower: startDatetime, upper: endDatetime});
+	// console.log(`Dates:`, {lower: startDatetime, upper: endDatetime});
 	const entryIndexRanges = modeRange.evaluate(list, {lower: startDatetime, upper: endDatetime});
-	// console.log(`Entry index ranges:`);
-	// console.log(entryIndexRanges);
+	// console.log(`Entry index ranges:`, entryIndexRanges);
 	const entriesOrMetadata = modeOrder.evaluate(list, entryIndexRanges);
-	// console.log(`Entry lists:`);
-	// console.log(entriesOrMetadata, entriesOrMetadata.length);
+	// console.log(`Entry lists:`, entriesOrMetadata, entriesOrMetadata.length);
 	if (!entriesOrMetadata.length) {
 		outputWindow.write("[No entries exist]");
 		return;

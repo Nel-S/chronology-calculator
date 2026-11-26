@@ -26,13 +26,13 @@ const DEFAULT_RANGES: Record<string, (list: TimeseriesList, dates: {lower: Date,
 	"Between Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
 		const minIndex = minEntryAfterDateIndex(list, dates.lower, exclusive);
 		const maxIndex = maxEntryBeforeDateIndex(list, dates.upper, exclusive);
-		if (minIndex === null || maxIndex === null) return [];
+		if (minIndex === null || maxIndex === null || minIndex < maxIndex) return [];
 		return [[maxIndex, minIndex]];
 	},
 	"Not Between Dates": function(list: TimeseriesList, dates: {lower: Date, upper: Date}, exclusive: boolean = true): [number, number][] {
 		const beforeMaxIndex = maxEntryBeforeDateIndex(list, dates.lower, exclusive);
 		const afterMinIndex = minEntryAfterDateIndex(list, dates.upper, exclusive);
-		if (beforeMaxIndex === null || afterMinIndex === null) return [];
+		if (beforeMaxIndex === null || afterMinIndex === null || beforeMaxIndex < afterMinIndex) return [];
 		return [[0, afterMinIndex], [beforeMaxIndex, list.entries.length - 1]];
 	}
 };

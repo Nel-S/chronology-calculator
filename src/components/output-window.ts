@@ -69,48 +69,47 @@ export class OutputWindow {
 
 	logError(error: ErrorEvent | PromiseRejectionEvent): void {
 		// Data related to the error object itself
-		const errorData = error instanceof ErrorEvent ? {
-			message: error.message,
-			type: error.type,
-			file: error.filename,
-			lineNumber: error.lineno,
-			columnNumber: error.colno,
-			stack: "stack" in error ?
+		const errorData = {
+			"Message": error instanceof ErrorEvent ? error.message : error.reason,
+			"Error type": error.type,
+			"File": error instanceof ErrorEvent ? error.filename : "[Unknown]",
+			"Line number": error instanceof ErrorEvent ? error.lineno : "[Unknown]",
+			"Column number": error instanceof ErrorEvent ? error.colno : "[Unknown]",
+			"Stack trace": error instanceof ErrorEvent ? (
+				"stack" in error ?
 				error.stack :
 				"stack" in error.error ?
 					error.error.stack :
 					"[Unsupported]"
-		} : {
-			message: error.reason,
-			type: error.type,
-			file: "[Unknown]",
-			lineNumber: "[Unknown]",
-			columnNumber: "[Unknown]",
-			stack: error.reason.stack ?? "[Unsupported]"
+			) : (
+				error.reason.stack ?? "[Unsupported]"
+			)
 		};
 		// Data related to the surrounding page environment.
 		const environmentData = {
-			// TODO, FIX BEFORE RELEASE: Implement.
-			// buildVersion: import.meta.env.BUILD_VERSION ?? "[Unknown]",
-			buildType: import.meta.env.MODE ?? "[Unknown]",
+			"Build version": import.meta.env.VITE_PACKAGE_VERSION ?? "[Unknown]",
+			"Build type": import.meta.env.MODE ?? "[Unknown]"
+		};
+		// The current state of the application.
+		const currentConfigurationData = {
 			/* TODO: These should be replaced with references to the corresponding components, especially
 			   because the mapped list external reference, etc. should also be displayed as well. */
-			currentModeOrder: ElementUtils.getElementOrNull<HTMLSelectElement>("#mode-form-order")?.selectedOptions[0]?.value ?? "[Unknown]",
-			currentModeRange: ElementUtils.getElementOrNull<HTMLSelectElement>("#mode-form-range")?.selectedOptions[0]?.value ?? "[Unknown]",
-			currentSplitByMetadata: ElementUtils.getElementOrNull<HTMLInputElement>("#mode-form-split-by-metadata")?.checked ?? "[Unknown]",
-			currentList: ElementUtils.getElementOrNull<HTMLSelectElement>("#list-form")?.selectedOptions[0]?.value ?? "[Unknown]",
-			currentStartDatetime: ElementUtils.getElementOrNull<HTMLInputElement>("#datetime-start-form")?.value ?? "[Unknown]",
-			currentStartUTCOffset: ElementUtils.getElementOrNull<HTMLInputElement>("#utc-offset-start-form")?.value ?? "[Unknown]",
-			currentEndDatetime: ElementUtils.getElementOrNull<HTMLInputElement>("#datetime-end-form")?.value ?? "[Unknown]",
-			currentEndUTCOffset: ElementUtils.getElementOrNull<HTMLInputElement>("#utc-offset-end-form")?.value ?? "[Unknown]",
-			currentExclusiveDatetimes: ElementUtils.getElementOrNull<HTMLInputElement>("#date-exclusive-bound-form")?.checked ?? "[Unknown]",
+			"Mode Order": ElementUtils.getElementOrNull<HTMLSelectElement>("#mode-form-order")?.selectedOptions[0]?.value ?? "[Unknown]",
+			"Mode Range": ElementUtils.getElementOrNull<HTMLSelectElement>("#mode-form-range")?.selectedOptions[0]?.value ?? "[Unknown]",
+			"Split by Metadata": ElementUtils.getElementOrNull<HTMLInputElement>("#mode-form-split-by-metadata")?.checked ?? "[Unknown]",
+			"List": ElementUtils.getElementOrNull<HTMLSelectElement>("#list-form")?.selectedOptions[0]?.value ?? "[Unknown]",
+			"Start Datetime": ElementUtils.getElementOrNull<HTMLInputElement>("#datetime-start-form")?.value ?? "[Unknown]",
+			"Start UTC Offset": ElementUtils.getElementOrNull<HTMLInputElement>("#utc-offset-start-form")?.value ?? "[Unknown]",
+			"End Datetime": ElementUtils.getElementOrNull<HTMLInputElement>("#datetime-end-form")?.value ?? "[Unknown]",
+			"End UTC Offset": ElementUtils.getElementOrNull<HTMLInputElement>("#utc-offset-end-form")?.value ?? "[Unknown]",
+			"Exclusive Datetimes": ElementUtils.getElementOrNull<HTMLInputElement>("#date-exclusive-bound-form")?.checked ?? "[Unknown]",
 		};
 		/* TODO: Truncate main error message to ~50 characters, so it doesn't push the request for a GitHub
 		   issue off the edge of the screen.*/
-		this.write(`
+		let errorMessage = `
 			<div class="stack-vertically">
 				<p class="list-name">An unhandled error occurred:<br>
-					"${errorData.message}"<br>
+					"${errorData["Message"]}"<br>
 					<br>
 					Please report this as a ${OutputWindow.#printLinkable(
 						{name: "GitHub Issue", url: "https://github.com/Nel-S/chronology-calculator/issues"}
@@ -119,31 +118,23 @@ export class OutputWindow {
 				<p class="label">
 					Please also copy the following information into your report:<br>
 					<br>
-					<ul>
-						<li>Message: "${errorData.message}"</li>
-						<li>Error type: ${errorData.type}</li>
-						<li>Build type: ${environmentData.buildType}</li>
-						<li>File: ${errorData.file}</li>
-						<li>Line: ${errorData.lineNumber}</li>
-						<li>Column: ${errorData.columnNumber}</li>
-						<li>Stack trace: ${errorData.stack}</li>
-						<li>
-							Current configuration:<ul>
-								<li>Mode order: "${environmentData.currentModeOrder}"</li>
-								<li>Mode range: "${environmentData.currentModeRange}"</li>
-								<li>Mode split by metadata: ${environmentData.currentSplitByMetadata}</li>
-								<li>List: "${environmentData.currentList}"</li>
-								<li>Start datetime: "${environmentData.currentStartDatetime}"</li>
-								<li>Start UTC offset: "${environmentData.currentStartUTCOffset}"</li>
-								<li>End datetime: "${environmentData.currentEndDatetime}"</li>
-								<li>End UTC offset: "${environmentData.currentEndUTCOffset}"</li>
-								<li>Exclusive datetimes: "${environmentData.currentExclusiveDatetimes}"</li>
-							</ul>
-						</li>
+					<ul>`;
+		Object.entries(errorData).forEach(
+			([key, value]) => errorMessage += `<li>${key}: ${value}</li>`
+		);
+		Object.entries(environmentData).forEach(
+			([key, value]) => errorMessage += `<li>${key}: ${value}</li>`
+		);
+		errorMessage += "<li>Current configuration:<ul>";
+		Object.entries(currentConfigurationData).forEach(
+			([key, value]) => errorMessage += `<li>${key}: ${value}</li>`
+		);
+		errorMessage += "</ul></li>";
+		errorMessage += `
 					</ul>
 				</p>
-			</div>`
-		);
+			</div>`;
+		this.write(errorMessage);
 	}
 
 	printEntries(originalList: TimeseriesList, entriesOrMetadataLists: (Entry | null)[][] | Entry[]): void {
