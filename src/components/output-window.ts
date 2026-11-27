@@ -137,38 +137,26 @@ export class OutputWindow {
 		this.write(errorMessage);
 	}
 
-	printEntries(originalList: TimeseriesList, entriesOrMetadataLists: (Entry | null)[][] | Entry[]): void {
+	printEntries(originalList: TimeseriesList, entriesOrMetadataLists: Record<string, Entry[]> | Entry[]): void {
 		// Blank the window WITHOUT clearing the last updated text.
 		this.blank("window");
-		for (const entryOrMetadataList of entriesOrMetadataLists) {
-			if (entryOrMetadataList instanceof Array) {
-				let entryHTML = `<div class="stack-horizontally-wrap spaced">`;
-				for (let i = 0; i < entryOrMetadataList.length; ++i) {
-					const currentMetadata = entryOrMetadataList[i];
+		if (
+			// If an empty object/array was passed...
+			ElementUtils.isObjectEmpty(entriesOrMetadataLists) || (
+				// ...or an object containing solely-empty arrays was passed...
+				!(entriesOrMetadataLists instanceof Array) && Object.values(entriesOrMetadataLists).every(
+					(entryList) => !entryList.length
+				)
+			)
+		) {
+			// Indicate no entries exist.
+			this.write("[No entries exist]", true);
+			return;
+		}
 
-					const label = StringUtils.capitalize(
-						!i ? originalList.defaultLabel : originalList.metadata[i-1]
-					);
-					let nameText: string;
-					let subtext: string;
-					if (!currentMetadata) {
-						nameText = "[None existed]";
-						subtext = "";
-					} else {
-						nameText = OutputWindow.#printLinkable(currentMetadata) + this.#toCitations(currentMetadata.sources);
-						subtext = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(currentMetadata.timestamp, true) + " UTC" : DateUtils.extractDate(currentMetadata.timestamp)}`;
-					}
-	
-					entryHTML += `
-						<div class="stack-vertically should-fade-in">
-							<p class="label">${label}:</p>
-							<p class="list-name">${nameText}</p>
-							<p class="subtext">${subtext}</p>
-						</div>`
-				}
-				entryHTML += "</div>";
-				this.write(entryHTML, true);
-			} else {
+		// If a list of entries was passed:
+		if (entriesOrMetadataLists instanceof Array) {
+			for (const entryOrMetadataList of entriesOrMetadataLists) {
 				let nameText = OutputWindow.#printLinkable(entryOrMetadataList) + this.#toCitations(entryOrMetadataList.sources);
 				let subtext = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(entryOrMetadataList.timestamp, true) + " UTC" : DateUtils.extractDate(entryOrMetadataList.timestamp)}`;
 				const currentEntryMetadata = Object.keys(entryOrMetadataList).filter(
@@ -184,7 +172,30 @@ export class OutputWindow {
 					</div>`, true
 				);
 			}
+			return;
 		}
+
+		// If a metadata-divided object was passed:
+		let entryHTML = `<div class="stack-horizontally-wrap spaced-no-center">`;
+		Object.entries(entriesOrMetadataLists).forEach(
+			([currentMetadata, entryList]) => {
+				if (!entryList.length) return;
+				entryHTML += `<div class="stack-vertically should-fade-in">
+					<p class="label">${StringUtils.capitalize(currentMetadata)}:</p>`
+					for (const entry of entryList) {
+						const nameText = OutputWindow.#printLinkable(entry) + this.#toCitations(entry.sources);
+						const subtext = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(entry.timestamp, true) + " UTC" : DateUtils.extractDate(entry.timestamp)}`;
+						entryHTML += `
+					<div class="stack-vertically">
+						<p class="list-name">${nameText}</p>
+						<p class="subtext">${subtext}</p>
+					</div>`;
+					}
+				entryHTML += `</div>`;
+			}
+		);
+		entryHTML += "</div>";
+		this.write(entryHTML, true);
 	}
 
 	setLastUpdated(dates: Date | null | (Date | null)[]): void {
@@ -206,7 +217,7 @@ export class OutputWindow {
 				const latestDuration = Math.floor(DateUtils.millisecondsBetween(sortedDates[sortedDates.length - 1], currentDate)/MILLISECONDS_PER_DAY);
 				text = latestDuration == earliestDuration ?
 					`Elements of this list were last updated ${latestDuration} day${latestDuration == 1 ? "" : "s"} ago.` :
-					`Elements of this list were last updated between ${earliestDuration} and ${latestDuration} days ago.`;
+					`Elements of this list were last updated between ${latestDuration} and ${earliestDuration} days ago.`;
 			}
 		}
 		this.lastUpdatedText.innerText = text;

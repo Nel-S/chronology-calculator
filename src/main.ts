@@ -140,10 +140,6 @@ async function recalculate(): Promise<void> {
 	// console.log(`Entry index ranges:`, entryIndexRanges);
 	const entriesOrMetadata = modeOrder.evaluate(list, entryIndexRanges);
 	// console.log(`Entry lists:`, entriesOrMetadata, entriesOrMetadata.length);
-	if (!entriesOrMetadata.length) {
-		outputWindow.write("[No entries exist]");
-		return;
-	}
 	outputWindow.printEntries(list, entriesOrMetadata);
 }
 

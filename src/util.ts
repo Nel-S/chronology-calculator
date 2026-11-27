@@ -55,6 +55,14 @@ export class DateUtils {
 }
 
 export class ElementUtils {
+	static isObjectEmpty(obj: any): boolean {
+		if (obj == null || obj == undefined || obj == false) return true;
+		for (const _ in obj) {
+			return false;
+		}
+		return true;
+	}
+
 	static getIfNullOrNull<T>(value: T | null, getter: (...args: any[]) => T | null, ...args: any[]): T | null {
 		if (value !== null) return value;
 		value = getter(args);
