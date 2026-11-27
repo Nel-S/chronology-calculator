@@ -110,7 +110,7 @@ function renameKeysRecursive(obj: any, keyPath: string[], replacement: string) {
 			// Check if the current object contains the desired key, and if it is set to the desired value
 			const desiredKey = currentKeyPart.slice(0, splitForValue);
 			const desiredValue = currentKeyPart.slice(splitForValue + ListSelector.PARSER_KEY_VALUE_DELIMETER.length);
-			if (Object.keys(obj).includes(desiredKey) && obj[desiredKey] == desiredValue) {
+			if (desiredKey in obj && obj[desiredKey] == desiredValue) {
 				// If so, and a replacement was provided, replace with the replacement
 				if (replacement) obj[desiredKey] = replacement;
 				// Otherwise if the replacement is blank, delete the key
@@ -120,7 +120,7 @@ function renameKeysRecursive(obj: any, keyPath: string[], replacement: string) {
 			// [Falls out of this eventual block if that failed...]
 		// The desired operation is otherwise a key replacement. Check if the current object
 		// contains the desired key. If so...
-		} else if (Object.keys(obj).includes(currentKeyPart)) {
+		} else if (currentKeyPart in obj) {
 			// If the replacement is specified as metadata, add it as a metadata entry
 			if (replacement == ListSelector.PARSER_CREATE_NEW_KEY_WITH_VALUE_DELIMETER) obj[obj[currentKeyPart]] = true;
 			// If an explicit replacement was specified, rename the key.
@@ -135,7 +135,7 @@ function renameKeysRecursive(obj: any, keyPath: string[], replacement: string) {
 	
 	// This will only trigger if A. the key path is of length > 1, and B. the current key
 	// part is a key of the current object.
-	if (Object.keys(obj).includes(currentKeyPart)) {
+	if (currentKeyPart in obj) {
 		// If so, repeat recursively under that key
 		renameKeysRecursive(obj[currentKeyPart], keyPath.slice(1), replacement);
 		return;
@@ -314,8 +314,8 @@ export class ListSelector {
 				responseJSON = {entries: responseJSON}
 			}
 			// Add last modified date, if applicable
-			if (!Object.keys(responseJSON).includes("lastModified")) {
-				Object.assign(responseJSON, {lastModified: response.headers.get("Last-Modified")});
+			if (!("lastModified" in responseJSON)) {
+				responseJSON["lastModified"] = response.headers.get("Last-Modified");
 			}
 
 			// Attempt to parse as TimeSeries list

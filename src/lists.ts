@@ -120,7 +120,7 @@ export const timeseriesListSchema = z.pipe(
 		metadata: [...new Set(data.entries.flatMap(
 			// For each entry, get keys in the entry that aren't in the entry schema
 			(entry) => Object.keys(entry).filter(
-				(key) => !Object.keys(entrySchema.shape).includes(key)
+				(key) => !(key in entrySchema.shape)
 			)
 			// Then pass through a Set to remove duplicates
 		))]

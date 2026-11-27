@@ -6,7 +6,7 @@ import {ModeRangeSelector} from "./components/mode-range-selector.js";
 import {OutputWindow} from "./components/output-window.js";
 import {type TimeseriesList} from "./lists.js";
 
-/* TODO: With the current event listener setup, this has to be imported first for its shoe/hide buttons
+/* TODO: With the current event listener setup, this has to be imported first for its show/hide buttons
    to update properly, which is not a good thing.
    The datetime objects, when rewritten, will probably need to log the last-received list and mode orders,
    and update the interactability of its forms respectively.*/

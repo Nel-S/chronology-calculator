@@ -156,6 +156,7 @@ export class OutputWindow {
 
 		// If a list of entries was passed:
 		if (entriesOrMetadataLists instanceof Array) {
+			let entryHTML = `<p class="label">${entriesOrMetadataLists.length} entr${entriesOrMetadataLists.length == 1 ? "y" : "ies"}:</p>`
 			for (const entryOrMetadataList of entriesOrMetadataLists) {
 				let nameText = OutputWindow.#printLinkable(entryOrMetadataList) + this.#toCitations(entryOrMetadataList.sources);
 				let subtext = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(entryOrMetadataList.timestamp, true) + " UTC" : DateUtils.extractDate(entryOrMetadataList.timestamp)}`;
@@ -165,13 +166,12 @@ export class OutputWindow {
 				for (const metadata of (currentEntryMetadata.length ? currentEntryMetadata : [originalList.defaultLabel])) {
 					subtext += `, ${metadata}`;
 				}
-				this.write(
-					`<div class="should-fade-in">
+				entryHTML += `<div class="should-fade-in">
 						<p class="list-name">${nameText}</p>
 						<p class="subtext">${subtext}</p>
-					</div>`, true
-				);
+					</div>`;
 			}
+			this.write(entryHTML, true);
 			return;
 		}
 
@@ -181,7 +181,7 @@ export class OutputWindow {
 			([currentMetadata, entryList]) => {
 				if (!entryList.length) return;
 				entryHTML += `<div class="stack-vertically should-fade-in">
-					<p class="label">${StringUtils.capitalize(currentMetadata)}:</p>`
+					<p class="label">${StringUtils.capitalize(currentMetadata)} (${entryList.length} entr${entryList.length == 1 ? "y" : "ies"}):</p>`
 					for (const entry of entryList) {
 						const nameText = OutputWindow.#printLinkable(entry) + this.#toCitations(entry.sources);
 						const subtext = `~ ${originalList.highResolution ? DateUtils.extractDateAndTime(entry.timestamp, true) + " UTC" : DateUtils.extractDate(entry.timestamp)}`;

@@ -26,7 +26,7 @@ export class Selector<T, E extends HTMLElement> {
 	}
 
 	contains(label: string): boolean {
-		return Object.keys(this.mapper).includes(label);
+		return label in this.mapper;
 	}
 
 	// list(): string[] {
